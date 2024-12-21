@@ -2,6 +2,8 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import { Slider } from './ui/slider'
+import { api } from '@/services/api'
+import { DataAdapter } from '@/services/data-adapter'
 
 interface ShotVisualizationProps {
   initialDistance?: number
@@ -23,46 +25,30 @@ const ShotVisualization: React.FC<ShotVisualizationProps> = ({
     windDirection: initialWindDirection
   })
 
-  // Calculate lateral offset based on wind conditions and distance
-  const calculateLateralOffset = (distance: number, windSpeed: number, windDirection: number): number => {
-    // Convert wind direction to radians
-    const windAngle = windDirection * Math.PI / 180
-    
-    // Calculate wind effect (stronger effect with higher wind speed and longer distance)
-    // Wind effect increases non-linearly with distance due to longer exposure time
-    // Use cosine to allow for both positive and negative offsets based on wind direction
-    const windEffect = Math.cos(windAngle) * windSpeed * Math.pow(distance / 200, 1.5)
-    
-    // Scale the effect (adjust this multiplier to control the overall wind influence)
-    return windEffect * 0.4 // Scaled to give reasonable offsets (-20 to +20 yards)
-  }
-
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+    const updateShot = async () => {
+      try {
+        // Get shot data from your research API
+        const shotData = await api.getShotData({
+          distance: params.distance,
+          windSpeed: params.windSpeed,
+          windDirection: params.windDirection
+        })
 
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+        // Convert research data to UI format
+        const adaptedData = DataAdapter.adaptShotData(shotData)
 
-    // Prevent default touch actions on canvas
-    canvas.style.touchAction = 'none'
-
-    // Handle touch events
-    const handleTouch = (e: TouchEvent) => {
-      e.preventDefault()
-      // Touch handling logic here
+        // Update visualization
+        drawShot(adaptedData)
+      } catch (error) {
+        console.error('Error fetching shot data:', error)
+      }
     }
 
-    canvas.addEventListener('touchstart', handleTouch, { passive: false })
-    canvas.addEventListener('touchmove', handleTouch, { passive: false })
+    updateShot()
+  }, [params])
 
-    return () => {
-      canvas.removeEventListener('touchstart', handleTouch)
-      canvas.removeEventListener('touchmove', handleTouch)
-    }
-  }, [])
-
-  useEffect(() => {
+  const drawShot = (data: any) => {
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -76,28 +62,24 @@ const ShotVisualization: React.FC<ShotVisualizationProps> = ({
     ctx.fillStyle = '#111827'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    // Calculate lateral offset based on wind and distance
-    const lateralOffset = calculateLateralOffset(params.distance, params.windSpeed, params.windDirection)
-
     // Calculate scales
     const xRange = 40 // -20 to +20 yards
     const yardToPixelX = (canvas.width - (2 * PADDING)) / xRange
-    const yardToPixelY = (canvas.height - (2 * PADDING)) / params.distance
+    const yardToPixelY = (canvas.height - (2 * PADDING)) / data.distance
 
     // Set origin to bottom center of canvas
     const originX = canvas.width / 2
     const originY = canvas.height - PADDING
 
     // Draw grid and axes
-    drawGrid(ctx, canvas.width, canvas.height, params.distance, xRange, yardToPixelX, yardToPixelY, originX, originY)
+    drawGrid(ctx, canvas.width, canvas.height, data.distance, xRange, yardToPixelX, yardToPixelY, originX, originY)
 
     // Draw wind indicator
-    drawWindIndicator(ctx, params.windSpeed, params.windDirection)
+    drawWindIndicator(ctx, data.windSpeed, data.windDirection)
 
     // Draw shot path with calculated lateral offset
-    drawShotPath(ctx, originX, originY, params.distance, lateralOffset, yardToPixelX, yardToPixelY)
-
-  }, [params])
+    drawShotPath(ctx, originX, originY, data.distance, data.lateralOffset, yardToPixelX, yardToPixelY)
+  }
 
   const drawGrid = (
     ctx: CanvasRenderingContext2D,
@@ -300,7 +282,7 @@ const ShotVisualization: React.FC<ShotVisualizationProps> = ({
           <div className="bg-gray-800 rounded-xl p-3 shadow-lg">
             <div className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Offset</div>
             <div className="text-lg font-bold text-emerald-400">
-              {calculateLateralOffset(params.distance, params.windSpeed, params.windDirection) > 0 ? 'R' : 'L'} {Math.abs(Math.round(calculateLateralOffset(params.distance, params.windSpeed, params.windDirection)))}<span className="text-xs ml-1">yds</span>
+              {params.windDirection > 90 ? 'R' : 'L'} {Math.abs(Math.round(params.windSpeed))}<span className="text-xs ml-1">yds</span>
             </div>
           </div>
         </div>
