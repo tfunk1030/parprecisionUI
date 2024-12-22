@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { createPortal } from 'react-dom'
 import { useWidgetConfig, type WidgetConfig, type WidgetVariable } from '@/lib/widget-config-context'
 import { useDashboard } from '@/lib/dashboard-context'
 import { WIDGET_SIZES, type WidgetSize } from '@/lib/widget-sizes'
@@ -109,9 +110,9 @@ export function WidgetConfigModal({ widgetId, onClose }: WidgetConfigModalProps)
     })
   }
 
-  return (
+  const modalContent = (
     <div 
-      className="absolute inset-0 bg-black/50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
@@ -208,4 +209,8 @@ export function WidgetConfigModal({ widgetId, onClose }: WidgetConfigModalProps)
       </div>
     </div>
   )
+
+  if (typeof window === 'undefined') return null
+
+  return createPortal(modalContent, document.getElementById('widget-config-modal') || document.body)
 }

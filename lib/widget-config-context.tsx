@@ -22,49 +22,76 @@ interface WidgetConfigContextType {
   configs: WidgetConfigs
   updateConfig: (widgetId: string, config: WidgetConfig) => void
   getConfig: (widgetId: string) => WidgetConfig | undefined
+  resetToDefaults: () => void
 }
 
 const WidgetConfigContext = createContext<WidgetConfigContextType | null>(null)
 
 const DEFAULT_CONFIGS: WidgetConfigs = {
-  'environmental': {
-    id: 'environmental',
-    variables: [
-      { id: 'temperature', name: 'Temperature', enabled: true, order: 0 },
-      { id: 'humidity', name: 'Humidity', enabled: true, order: 1 },
-      { id: 'pressure', name: 'Pressure', enabled: false, order: 2 },
-      { id: 'altitude', name: 'Altitude', enabled: false, order: 3 },
-      { id: 'dewPoint', name: 'Dew Point', enabled: false, order: 4 },
-    ]
-  },
-  'wind': {
-    id: 'wind',
+  'wind-1': {
+    id: 'wind-1',
     variables: [
       { id: 'speed', name: 'Wind Speed', enabled: true, order: 0 },
       { id: 'direction', name: 'Direction', enabled: true, order: 1 },
       { id: 'gusts', name: 'Gusts', enabled: false, order: 2 },
     ]
   },
-  'shot-analysis': {
-    id: 'shot-analysis',
+  'env-1': {
+    id: 'env-1',
     variables: [
-      { id: 'carry', name: 'Carry Distance', enabled: true, order: 0 },
-      { id: 'total', name: 'Total Distance', enabled: true, order: 1 },
-      { id: 'apex', name: 'Apex Height', enabled: false, order: 2 },
-      { id: 'launchAngle', name: 'Launch Angle', enabled: true, order: 3 },
-      { id: 'ballSpeed', name: 'Ball Speed', enabled: true, order: 4 },
-      { id: 'spinRate', name: 'Spin Rate', enabled: false, order: 5 },
-      { id: 'smashFactor', name: 'Smash Factor', enabled: false, order: 6 },
+      { id: 'temperature', name: 'Temperature', enabled: true, order: 0 },
+      { id: 'humidity', name: 'Humidity', enabled: true, order: 1 },
+      { id: 'pressure', name: 'Pressure', enabled: true, order: 2 },
+      { id: 'altitude', name: 'Altitude', enabled: true, order: 3 }
     ]
   },
-  'round-tracker': {
-    id: 'round-tracker',
+  'compass-1': {
+    id: 'compass-1',
+    variables: [
+      { id: 'bearing', name: 'Bearing', enabled: true, order: 0 },
+      { id: 'cardinal', name: 'Cardinal Direction', enabled: true, order: 1 },
+    ]
+  },
+  'round-1': {
+    id: 'round-1',
     variables: [
       { id: 'score', name: 'Score', enabled: true, order: 0 },
       { id: 'putts', name: 'Putts', enabled: true, order: 1 },
-      { id: 'fir', name: 'Fairways Hit', enabled: false, order: 2 },
-      { id: 'gir', name: 'Greens in Regulation', enabled: false, order: 3 },
-      { id: 'penalties', name: 'Penalties', enabled: false, order: 4 },
+      { id: 'fairwaysHit', name: 'Fairways Hit', enabled: true, order: 2 },
+      { id: 'greensHit', name: 'Greens Hit', enabled: true, order: 3 }
+    ]
+  }
+}
+
+// Template configs for new widgets
+const TEMPLATE_CONFIGS: { [type: string]: Omit<WidgetConfig, 'id'> } = {
+  'wind': {
+    variables: [
+      { id: 'speed', name: 'Wind Speed', enabled: true, order: 0 },
+      { id: 'direction', name: 'Direction', enabled: true, order: 1 },
+      { id: 'gusts', name: 'Gusts', enabled: false, order: 2 },
+    ]
+  },
+  'environmental': {
+    variables: [
+      { id: 'temperature', name: 'Temperature', enabled: true, order: 0 },
+      { id: 'humidity', name: 'Humidity', enabled: true, order: 1 },
+      { id: 'pressure', name: 'Pressure', enabled: true, order: 2 },
+      { id: 'altitude', name: 'Altitude', enabled: true, order: 3 }
+    ]
+  },
+  'compass': {
+    variables: [
+      { id: 'bearing', name: 'Bearing', enabled: true, order: 0 },
+      { id: 'cardinal', name: 'Cardinal Direction', enabled: true, order: 1 },
+    ]
+  },
+  'round': {
+    variables: [
+      { id: 'score', name: 'Score', enabled: true, order: 0 },
+      { id: 'putts', name: 'Putts', enabled: true, order: 1 },
+      { id: 'fairwaysHit', name: 'Fairways Hit', enabled: true, order: 2 },
+      { id: 'greensHit', name: 'Greens Hit', enabled: true, order: 3 }
     ]
   }
 }
@@ -74,17 +101,10 @@ const STORAGE_KEY = 'widget-configs'
 export function WidgetConfigProvider({ children }: { children: React.ReactNode }) {
   const [configs, setConfigs] = useState<WidgetConfigs>(DEFAULT_CONFIGS)
 
-  // Load saved configs on mount
+  // Clear localStorage and reset to defaults on mount
   useEffect(() => {
-    const savedConfigs = localStorage.getItem(STORAGE_KEY)
-    if (savedConfigs) {
-      try {
-        const parsed = JSON.parse(savedConfigs)
-        setConfigs(parsed)
-      } catch (error) {
-        console.error('Failed to parse saved widget configs:', error)
-      }
-    }
+    localStorage.removeItem(STORAGE_KEY)
+    setConfigs(DEFAULT_CONFIGS)
   }, [])
 
   const updateConfig = useCallback((widgetId: string, config: WidgetConfig) => {
@@ -100,11 +120,33 @@ export function WidgetConfigProvider({ children }: { children: React.ReactNode }
   }, [])
 
   const getConfig = useCallback((widgetId: string) => {
-    return configs[widgetId]
-  }, [configs])
+    // First check if we have a config for this specific widget instance
+    if (configs[widgetId]) {
+      return configs[widgetId]
+    }
+    
+    // If not, create a new config from the template
+    const [type] = widgetId.split('-')
+    const template = TEMPLATE_CONFIGS[type]
+    if (template) {
+      const newConfig = {
+        id: widgetId,
+        ...template
+      }
+      updateConfig(widgetId, newConfig)
+      return newConfig
+    }
+    
+    return undefined
+  }, [configs, updateConfig])
+
+  const resetToDefaults = useCallback(() => {
+    localStorage.removeItem(STORAGE_KEY)
+    setConfigs(DEFAULT_CONFIGS)
+  }, [])
 
   return (
-    <WidgetConfigContext.Provider value={{ configs, updateConfig, getConfig }}>
+    <WidgetConfigContext.Provider value={{ configs, updateConfig, getConfig, resetToDefaults }}>
       {children}
     </WidgetConfigContext.Provider>
   )

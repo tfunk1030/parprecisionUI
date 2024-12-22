@@ -24,7 +24,6 @@ export class EnvironmentalService {
       altitude: this.baseAltitude,
       windSpeed: 5,
       windDirection: 0,
-      dewPoint: 0,
       density: 1.225
     }
     this.subscribers = new Set()
@@ -64,10 +63,6 @@ export class EnvironmentalService {
       pressure: 1013.25 + Math.sin(timeScale * Math.PI * 2 + 3) * 10, // Vary around standard
       windSpeed: Math.abs(Math.sin(timeScale * Math.PI * 2 + 4) * 15), // Vary between 0-15 mph
       windDirection: (Math.sin(timeScale * Math.PI * 2 + 5) * 180 + 180) % 360, // Vary between 0-360 degrees
-      dewPoint: EnvironmentalCalculator.calculateDewPoint(
-        this.conditions.temperature,
-        this.conditions.humidity
-      ),
       density: 0 // Will be calculated below
     }
 
@@ -119,7 +114,6 @@ export class EnvironmentalService {
       windSpeed: 5,
       windDirection: 45,
       pressure: 1013.25,
-      dewPoint: EnvironmentalCalculator.calculateDewPoint(70, 60),
       density: EnvironmentalCalculator.calculateAirDensity({
         temperature: 70,
         humidity: 60,
@@ -127,7 +121,6 @@ export class EnvironmentalService {
         altitude: 100,
         windSpeed: 5,
         windDirection: 45,
-        dewPoint: EnvironmentalCalculator.calculateDewPoint(70, 60),
         density: 1.225
       })
     }

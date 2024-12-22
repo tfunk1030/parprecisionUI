@@ -5,6 +5,7 @@ import { Settings2, Compass } from 'lucide-react'
 import { WidgetConfigModal } from '@/components/dashboard/widget-config-modal'
 import { useWidgetSize } from '@/lib/use-widget-size'
 import { useWidgetConfig } from '@/lib/widget-config-context'
+import { useDashboard } from '@/lib/dashboard-context'
 
 function getCardinalDirection(degrees: number) {
   const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
@@ -142,9 +143,17 @@ const LargeLayout = ({ bearing }: { bearing: number }) => (
 export function CompassWidget() {
   const size = useWidgetSize()
   const { getConfig } = useWidgetConfig()
+  const { activeLayout } = useDashboard()
   const [showConfig, setShowConfig] = useState(false)
   const [bearing, setBearing] = useState(0)
   const [hasPermission, setHasPermission] = useState<boolean | null>(null)
+
+  // Find the widget ID from the active layout
+  const compassWidget = activeLayout?.widgets.find((w: any) => w.type === 'compass')
+  if (!compassWidget) return null
+
+  const config = getConfig(compassWidget.id)
+  if (!config) return null
 
   useEffect(() => {
     // Request device orientation permission
@@ -181,9 +190,6 @@ export function CompassWidget() {
     }
   }, [hasPermission])
 
-  const config = getConfig('compass')
-  if (!config) return null
-
   const LayoutComponent = {
     small: SmallLayout,
     wide: WideLayout,
@@ -209,7 +215,7 @@ export function CompassWidget() {
 
       {showConfig && (
         <WidgetConfigModal
-          widgetId="compass"
+          widgetId={compassWidget.id}
           onClose={() => setShowConfig(false)}
         />
       )}

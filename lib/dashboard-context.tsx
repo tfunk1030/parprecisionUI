@@ -1,8 +1,9 @@
 'use client'
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import { WIDGET_SIZES } from './widget-sizes'
 
-interface Widget {
+export interface Widget {
   id: string
   type: string
   position: { x: number; y: number }
@@ -34,19 +35,25 @@ const DEFAULT_LAYOUT: Layout = {
       id: 'wind-1',
       type: 'wind',
       position: { x: 0, y: 0 },
-      size: { width: 4, height: 3 }
+      size: WIDGET_SIZES.small // 6x3
+    },
+    {
+      id: 'compass-1',
+      type: 'compass',
+      position: { x: 6, y: 0 },
+      size: WIDGET_SIZES.small // 6x3
     },
     {
       id: 'env-1',
       type: 'environmental',
-      position: { x: 4, y: 0 },
-      size: { width: 6, height: 4 }
+      position: { x: 0, y: 3 },
+      size: WIDGET_SIZES.wide // 12x3
     },
     {
-      id: 'round-1',
+      id: 'round-tracker-1',
       type: 'round-tracker',
-      position: { x: 0, y: 3 },
-      size: { width: 12, height: 6 }
+      position: { x: 0, y: 6 },
+      size: WIDGET_SIZES.large // 12x6
     }
   ]
 }

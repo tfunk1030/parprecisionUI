@@ -4,9 +4,38 @@ import { DashboardGrid } from '@/components/dashboard/dashboard-grid'
 import { WidgetManager } from '@/components/dashboard/widget-manager'
 import { usePremium } from '@/lib/premium-context'
 import { DashboardProvider } from '@/lib/dashboard-context'
-import { WidgetConfigProvider } from '@/lib/widget-config-context'
+import { WidgetConfigProvider, useWidgetConfig } from '@/lib/widget-config-context'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { createPortal } from 'react-dom'
+
+function DashboardContent() {
+  const { resetToDefaults } = useWidgetConfig()
+
+  const handleReset = () => {
+    resetToDefaults()
+    window.location.reload()
+  }
+
+  return (
+    <DashboardProvider>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <button 
+            onClick={handleReset}
+            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-sm"
+          >
+            Reset Widgets
+          </button>
+        </div>
+        <DashboardGrid />
+        <WidgetManager />
+      </div>
+      {createPortal(<div id="widget-config-modal" />, document.body)}
+    </DashboardProvider>
+  )
+}
 
 export default function DashboardPage() {
   const { isPremium } = usePremium()
@@ -24,13 +53,7 @@ export default function DashboardPage() {
 
   return (
     <WidgetConfigProvider>
-      <DashboardProvider>
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
-          <DashboardGrid />
-          <WidgetManager />
-        </div>
-      </DashboardProvider>
+      <DashboardContent />
     </WidgetConfigProvider>
   )
 }

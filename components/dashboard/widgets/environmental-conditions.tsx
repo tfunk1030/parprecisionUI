@@ -6,6 +6,7 @@ import { useSettings } from '@/lib/settings-context'
 import { useWidgetConfig } from '@/lib/widget-config-context'
 import { useWidgetSize } from '@/lib/use-widget-size'
 import { useDashboard } from '@/lib/dashboard-context'
+import { Widget } from '@/lib/dashboard-context'
 import { WIDGET_SIZES } from '@/lib/widget-sizes'
 import { Settings2, Thermometer, Droplets, Mountain, Gauge } from 'lucide-react'
 import { WidgetConfigModal } from '@/components/dashboard/widget-config-modal'
@@ -46,8 +47,6 @@ const ConditionCard: React.FC<ConditionCardProps> = ({ id, title, icon }) => {
         return `${Math.round(conditions.pressure * 10) / 10} hPa`
       case 'altitude':
         return formatAltitude(Math.round(conditions.altitude))
-      case 'dewPoint':
-        return `${formatTemperature(Math.round(conditions.dewPoint * 10) / 10)}°`
       default:
         return '--'
     }
@@ -156,8 +155,6 @@ const getVariableIcon = (id: string) => {
       return <Gauge className="w-5 h-5 text-purple-500" />
     case 'altitude':
       return <Mountain className="w-5 h-5 text-green-500" />
-    case 'dewPoint':
-      return <Droplets className="w-5 h-5 text-cyan-500" />
     default:
       return null
   }
@@ -170,7 +167,7 @@ export function EnvironmentalConditionsWidget() {
   const { activeLayout } = useDashboard()
   
   // Find the widget ID from the active layout
-  const envWidget = activeLayout?.widgets.find(w => w.type === 'environmental')
+  const envWidget = activeLayout?.widgets.find((w: Widget) => w.type === 'environmental')
   if (!envWidget) return null
 
   const config = getConfig(envWidget.id)

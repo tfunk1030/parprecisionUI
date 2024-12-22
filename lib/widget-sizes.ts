@@ -17,5 +17,5 @@ export const DEFAULT_WIDGET_SIZES: Record<string, WidgetSize> = {
   wind: 'small',
   environmental: 'wide',
   compass: 'small',
-  'round-tracker': 'large'
+  'round-tracker': 'large'  // Changed from 'wide' to 'large'
 }

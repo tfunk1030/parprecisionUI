@@ -1,13 +1,13 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Wind as WindIcon, Navigation, ArrowRight, Settings2 } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Settings2, Navigation } from 'lucide-react'
 import { useWidgetSize } from '@/lib/use-widget-size'
-import { type WidgetSize } from '@/lib/widget-sizes'
+import { WIDGET_SIZES } from '@/lib/widget-sizes'
 import { WidgetConfigModal } from '../widget-config-modal'
 import { useWidgetConfig } from '@/lib/widget-config-context'
 import { useDashboard } from '@/lib/dashboard-context'
+import { Widget } from '@/lib/dashboard-context'
 
 interface WindData {
   speed: number
@@ -46,6 +46,7 @@ const DegreesCard = ({ data }: { data: WindData }) => (
     <div className="text-3xl font-bold mt-1">
       {data.directionDegrees}°
     </div>
+
     <Navigation 
       className="w-8 h-8 mt-2" 
       style={{ transform: `rotate(${data.directionDegrees}deg)` }}
@@ -79,6 +80,7 @@ const SmallLayout = ({ data }: { data: WindData }) => (
         <GustsCard data={data} />
       </div>
     </div>
+
     <div className="absolute bottom-1 left-0 right-0 flex justify-center gap-1">
       <div className="w-1 h-1 rounded-full bg-gray-500" />
       <div className="w-1 h-1 rounded-full bg-gray-500" />
@@ -106,18 +108,6 @@ const WideLayout = ({ data }: { data: WindData }) => (
   </div>
 )
 
-const LargeLayout = ({ data }: { data: WindData }) => (
-  <div className="grid grid-cols-2 gap-4 p-4 h-full">
-    <SpeedDirectionCard data={data} />
-    <DegreesCard data={data} />
-    <GustsCard data={data} />
-    <div className="bg-gray-800/50 rounded-lg p-4">
-      <h3 className="text-lg font-medium mb-2">Wind Trend</h3>
-      {/* Add wind trend graph here */}
-    </div>
-  </div>
-)
-
 const TallLayout = ({ data }: { data: WindData }) => (
   <div className="h-full">
     <div 
@@ -137,6 +127,18 @@ const TallLayout = ({ data }: { data: WindData }) => (
   </div>
 )
 
+const LargeLayout = ({ data }: { data: WindData }) => (
+  <div className="grid grid-cols-2 gap-4 p-4 h-full">
+    <SpeedDirectionCard data={data} />
+    <DegreesCard data={data} />
+    <GustsCard data={data} />
+    <div className="bg-gray-800/50 rounded-lg p-4">
+      <h3 className="text-lg font-medium mb-2">Wind Trend</h3>
+      {/* Add wind trend graph here */}
+    </div>
+  </div>
+)
+
 export function WindWidget() {
   const size = useWidgetSize()
   const [showConfig, setShowConfig] = useState(false)
@@ -144,7 +146,7 @@ export function WindWidget() {
   const { activeLayout } = useDashboard()
   
   // Find the widget ID from the active layout
-  const windWidget = activeLayout?.widgets.find(w => w.type === 'wind')
+  const windWidget = activeLayout?.widgets.find((w: Widget) => w.type === 'wind')
   if (!windWidget) return null
 
   const config = getConfig(windWidget.id)
@@ -162,7 +164,7 @@ export function WindWidget() {
       <div className="flex-1">
         <LayoutComponent data={WIND_DATA} />
       </div>
-      
+
       <div className="p-2">
         <button
           onClick={() => setShowConfig(true)}

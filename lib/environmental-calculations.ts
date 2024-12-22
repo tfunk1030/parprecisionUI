@@ -5,7 +5,6 @@ export interface EnvironmentalConditions {
   altitude: number;        // in feet
   windSpeed: number;       // in mph
   windDirection: number;   // in degrees (0-360)
-  dewPoint: number;        // in Fahrenheit
   density: number;         // in kg/m³
 }
 
@@ -38,14 +37,6 @@ export class EnvironmentalCalculator {
     // Magnus formula for saturation vapor pressure
     const saturationPressure = 6.1078 * Math.exp((17.27 * tempC) / (tempC + 237.3));
     return (humidity / 100) * saturationPressure;
-  }
-
-  static calculateDewPoint(tempF: number, humidity: number): number {
-    const tempC = (tempF - 32) * 5/9;
-    const ln = Math.log(humidity / 100);
-    const dewPointC = 237.3 * ((17.27 * tempC) / (237.3 + tempC) + ln) /
-                     (17.27 - ((17.27 * tempC) / (237.3 + tempC) + ln));
-    return (dewPointC * 9/5) + 32;
   }
 
   static calculateWindEffect(windSpeed: number, windDirection: number, shotDirection: number): {
