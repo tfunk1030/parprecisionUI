@@ -19,6 +19,27 @@ export function WindAnalysisWidget() {
   const { conditions } = useEnvironmental()
   const { settings, formatAltitude } = useSettings()
   
+  if (!conditions) {
+    return (
+      <div className="space-y-4 p-4">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-lg font-semibold">Wind Analysis</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Multi-level wind conditions
+            </p>
+          </div>
+          <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+            <Wind className="w-6 h-6 text-blue-500" />
+          </div>
+        </div>
+        <div className="flex items-center justify-center h-32">
+          <div className="text-gray-400">Loading wind data...</div>
+        </div>
+      </div>
+    )
+  }
+
   const [windData, setWindData] = React.useState<WindData[]>([
     { speed: 5, direction: 45, gusts: 7, altitude: 0, temperature: conditions.temperature, pressure: conditions.pressure },
     { speed: 7, direction: 50, gusts: 9, altitude: 50, temperature: conditions.temperature - 0.5, pressure: conditions.pressure - 5 },

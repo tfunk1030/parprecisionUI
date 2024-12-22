@@ -16,6 +16,13 @@ interface ClubSettingsContextType {
   getRecommendedClub: (targetYardage: number) => ClubData | null
 }
 
+interface ClubSettings {
+  units: 'yards' | 'meters'
+  showTrajectory: boolean
+  showSpinRate: boolean
+  showLaunchAngle: boolean
+}
+
 const defaultClubs: ClubData[] = [
   { name: 'Driver', normalYardage: 250, loft: 10.5 },
   { name: '3W', normalYardage: 230, loft: 15 },
@@ -32,7 +39,15 @@ const defaultClubs: ClubData[] = [
   { name: 'LW', normalYardage: 95, loft: 58 },
 ]
 
+const defaultSettings: ClubSettings = {
+  units: 'yards',
+  showTrajectory: true,
+  showSpinRate: true,
+  showLaunchAngle: true,
+}
+
 const ClubSettingsContext = createContext<ClubSettingsContextType | undefined>(undefined)
+const SettingsContext = createContext<{ settings: ClubSettings; updateSettings: (settings: Partial<ClubSettings>) => void } | undefined>(undefined)
 
 export function ClubSettingsProvider({ children }: { children: React.ReactNode }) {
   const [clubs, setClubs] = useState<ClubData[]>(() => {
@@ -72,17 +87,25 @@ export function ClubSettingsProvider({ children }: { children: React.ReactNode }
     return sortedClubs[0] || null
   }
 
+  const [settings, setSettings] = useState<ClubSettings>(defaultSettings)
+
+  const updateSettings = (newSettings: Partial<ClubSettings>) => {
+    setSettings(prev => ({ ...prev, ...newSettings }))
+  }
+
   return (
-    <ClubSettingsContext.Provider 
-      value={{ 
-        clubs, 
-        addClub, 
-        updateClub, 
+    <ClubSettingsContext.Provider
+      value={{
+        clubs,
+        addClub,
+        updateClub,
         removeClub,
         getRecommendedClub
       }}
     >
-      {children}
+      <SettingsContext.Provider value={{ settings, updateSettings }}>
+        {children}
+      </SettingsContext.Provider>
     </ClubSettingsContext.Provider>
   )
 }
@@ -93,4 +116,19 @@ export function useClubSettings() {
     throw new Error('useClubSettings must be used within a ClubSettingsProvider')
   }
   return context
+}
+
+export function useSettings() {
+  const context = useContext(SettingsContext)
+  if (!context) {
+    throw new Error('useSettings must be used within a ClubSettingsProvider')
+  }
+  return context
+}
+
+export function formatDistance(distance: number, units: 'yards' | 'meters' = 'yards'): string {
+  if (units === 'meters') {
+    return `${Math.round(distance * 0.9144)}m`
+  }
+  return `${Math.round(distance)}y`
 }

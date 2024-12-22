@@ -2,6 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Wind, ArrowUpRight, Crosshair } from 'lucide-react';
 
+interface FlightDataPoint {
+  time: number;
+  x: number;
+  y: number;
+  z: number;
+  velocity: number;
+  height: number;
+}
+
+interface ShotData {
+  clubType: string;
+  ballSpeed: number;
+  launchAngle: number;
+  spinRate: number;
+  windSpeed: number;
+  windDirection: number;
+  temperature: number;
+  altitude: number;
+  humidity: number;
+}
+
 export default function UltraRealisticShot({
   shotData = {
     clubType: 'Driver',
@@ -16,14 +37,14 @@ export default function UltraRealisticShot({
   }
 }) {
   const [view, setView] = useState('trajectory');
-  const [flightData, setFlightData] = useState([]);
+  const [flightData, setFlightData] = useState<FlightDataPoint[]>([]);
   const [playback, setPlayback] = useState(0);
 
   useEffect(() => {
     // Calculate realistic ball flight with advanced physics
     const calculateFlightPath = () => {
       const dt = 0.01; // Time step (seconds)
-      const data = [];
+      const data: FlightDataPoint[] = [];
       let t = 0;
       
       // Initial conditions
@@ -174,12 +195,12 @@ export default function UltraRealisticShot({
             <YAxis
               dataKey={view === 'trajectory' ? 'height' : 'z'}
               stroke="#ffffff80"
-              label={{
+              label={({
                 value: view === 'trajectory' ? 'Height (yards)' : 'Side (yards)',
                 angle: -90,
                 position: 'left',
                 fill: 'white'
-              }}
+              })}
             />
 
             <Tooltip
@@ -240,22 +261,22 @@ export default function UltraRealisticShot({
           {[
             { 
               label: 'Carry',
-              value: `${Math.round(visibleData[visibleData.length - 1]?.x || 0)}`,
+              value: Math.round(visibleData[visibleData.length - 1]?.x || 0).toString(),
               unit: 'yards'
             },
             { 
               label: 'Peak Height',
-              value: `${Math.round(Math.max(...(visibleData.map(p => p.height) || [0]))}`,
+              value: Math.round(Math.max(...(visibleData.map(p => p.height) || [0]))).toString(),
               unit: 'yards'
             },
             { 
               label: 'Ball Speed',
-              value: `${Math.round(visibleData[0]?.velocity || 0)}`,
+              value: Math.round(visibleData[0]?.velocity || 0).toString(),
               unit: 'mph'
             },
             { 
               label: 'Spin Rate',
-              value: `${(shotData.spinRate).toLocaleString()}`,
+              value: shotData.spinRate.toLocaleString(),
               unit: 'rpm'
             }
           ].map(metric => (

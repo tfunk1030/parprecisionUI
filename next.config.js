@@ -1,9 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   env: {
-    PORT: 4444
+    PORT: "3000"
   }
 }
 

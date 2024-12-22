@@ -15,12 +15,32 @@ import {
   Lock
 } from 'lucide-react'
 
+function convertAltitude(value: number, targetUnit: 'feet' | 'meters'): number {
+  if (targetUnit === 'meters') {
+    return value * 0.3048 // Convert feet to meters
+  } else {
+    return value / 0.3048 // Convert meters to feet
+  }
+}
+
 export default function ShotCalculatorPage() {
   const { conditions } = useEnvironmental()
   const { getRecommendedClub, clubs } = useClubSettings()
   const { isPremium, setShowUpgradeModal } = usePremium()
   const { settings, convertDistance, formatDistance, formatTemperature, formatAltitude, convertAltitude } = useSettings()
   const [targetYardage, setTargetYardage] = useState(150)
+
+  if (!conditions) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white p-8">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-800 rounded w-1/4 mb-4"></div>
+          <div className="h-64 bg-gray-800 rounded mb-4"></div>
+          <div className="h-8 bg-gray-800 rounded w-1/2"></div>
+        </div>
+      </div>
+    )
+  }
 
   const recommendedClub = useMemo(() => 
     getRecommendedClub(targetYardage), [targetYardage, clubs]
@@ -33,7 +53,7 @@ export default function ShotCalculatorPage() {
       ? convertAltitude(conditions.altitude, 'meters')
       : conditions.altitude
 
-    const densityEffect = (conditions.airDensity - 1.225) * targetYardage * 0.1 // Direct yardage effect
+    const densityEffect = (conditions.density - 1.225) * targetYardage * 0.1 // Direct yardage effect
     const altitudeEffect = altitudeInMeters * 0.00018 * targetYardage // Yardage effect from altitude
     const humidityEffect = (conditions.humidity - 50) * 0.0002 * targetYardage // Yardage effect from humidity
     const temperatureEffect = (conditions.temperature - 20) * 0.001 * targetYardage // Yardage effect from temperature
@@ -97,7 +117,7 @@ export default function ShotCalculatorPage() {
               <div>
                 <div className="text-sm">Air Density</div>
                 <div className="text-xs text-gray-400">
-                  {conditions.airDensity.toFixed(3)} kg/m³
+                  {conditions.density.toFixed(3)} kg/m³
                 </div>
               </div>
             </div>

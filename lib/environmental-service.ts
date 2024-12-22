@@ -1,114 +1,137 @@
-import { EnvironmentalConditions, EnvironmentalCalculator } from './environmental-calculations';
+'use client'
 
-interface EnvironmentalConditions {
-  temperature: number; // in Celsius
-  humidity: number; // percentage
-  altitude: number; // in meters
-  pressure: number; // in hPa
-  windSpeed: number; // in m/s
-  windDirection: number; // in degrees
-  dewPoint: number; // in Celsius
-  airDensity: number; // in kg/m³
+import { EnvironmentalConditions, EnvironmentalCalculator } from './environmental-calculations'
+
+interface SubscriberCallback {
+  (conditions: EnvironmentalConditions): void
 }
 
-const DEFAULT_CONDITIONS: EnvironmentalConditions = {
-  temperature: 20, // 20°C
-  humidity: 50, // 50%
-  altitude: 0, // sea level
-  pressure: 1013.25, // standard pressure
-  windSpeed: 0, // no wind
-  windDirection: 0, // no wind direction
-  dewPoint: 10, // 10°C
-  airDensity: 1.225, // standard air density
-};
-
-type SubscriberCallback = (conditions: EnvironmentalConditions) => void
-
 export class EnvironmentalService {
-  private static instance: EnvironmentalService;
-  private conditions: EnvironmentalConditions;
-  private subscribers: Set<SubscriberCallback>;
-  private updateInterval: NodeJS.Timeout | null;
-  private baseAltitude: number; // Base altitude that stays constant
-  private lastUpdate: number; // Last update timestamp
+  private static instance: EnvironmentalService
+  private conditions: EnvironmentalConditions
+  private subscribers: Set<(conditions: EnvironmentalConditions) => void>
+  private updateInterval: NodeJS.Timeout | null
+  private baseAltitude: number // Base altitude that stays constant
+  private lastUpdate: number // Last update timestamp
 
   private constructor() {
     // Generate a stable random base altitude using a fixed seed
-    const seed = 42; // Using a fixed seed for consistent values
-    this.baseAltitude = (Math.sin(seed) + 1) * 1000; // 0-2000 meters
-
+    this.baseAltitude = 100 + Math.floor(Math.random() * 1000)
     this.conditions = {
-      ...DEFAULT_CONDITIONS,
+      temperature: 70, // °F
+      humidity: 60,
+      pressure: 1013.25,
       altitude: this.baseAltitude,
-    };
-    this.subscribers = new Set();
-    this.updateInterval = null;
-    this.lastUpdate = Date.now();
+      windSpeed: 5,
+      windDirection: 0,
+      dewPoint: 0,
+      density: 1.225
+    }
+    this.subscribers = new Set()
+    this.updateInterval = null
+    this.lastUpdate = Date.now()
   }
 
   public static getInstance(): EnvironmentalService {
     if (!EnvironmentalService.instance) {
-      EnvironmentalService.instance = new EnvironmentalService();
+      EnvironmentalService.instance = new EnvironmentalService()
     }
-    return EnvironmentalService.instance;
-  }
-
-  public getConditions(): EnvironmentalConditions {
-    return { ...this.conditions };
+    return EnvironmentalService.instance
   }
 
   public subscribe(callback: SubscriberCallback): () => void {
-    this.subscribers.add(callback);
-    callback(this.conditions);
+    this.subscribers.add(callback)
+    callback(this.conditions)
     return () => {
-      this.subscribers.delete(callback);
-    };
+      this.subscribers.delete(callback)
+    }
   }
 
-  private notifySubscribers() {
-    this.subscribers.forEach((callback) => callback({ ...this.conditions }));
+  private notifySubscribers(): void {
+    this.subscribers.forEach((callback) => callback(this.conditions))
   }
 
-  private updateConditions() {
-    const now = Date.now();
-    const timeDiff = (now - this.lastUpdate) / 1000; // Time difference in seconds
+  private updateConditions(): void {
+    const now = Date.now()
+    const timeScale = now / (24 * 60 * 60 * 1000) // Scale to one day
 
-    // Use time-based variations with fixed phase offsets for stability
-    const timeScale = timeDiff / 3600; // Scale over an hour
+    // Update conditions with some natural variation
     this.conditions = {
-      temperature: 20 + Math.sin(timeScale * Math.PI * 2) * 5, // Vary between 15-25°C
-      humidity: 50 + Math.sin(timeScale * Math.PI * 2 + 1) * 20, // Vary between 30-70%
+      ...this.conditions,
+      temperature: 70 + Math.sin(timeScale * Math.PI * 2) * 10, // Vary between 60-80°F
+      humidity: 60 + Math.sin(timeScale * Math.PI * 2 + 1) * 20, // Vary between 40-80%
       altitude: this.baseAltitude + Math.sin(timeScale * Math.PI * 2 + 2) * 10, // Small variations
       pressure: 1013.25 + Math.sin(timeScale * Math.PI * 2 + 3) * 10, // Vary around standard
-      windSpeed: Math.sin(timeScale * Math.PI * 2 + 4) * 15, // Vary between 0-15 m/s
-      windDirection: Math.sin(timeScale * Math.PI * 2 + 5) * 360, // Vary between 0-360 degrees
+      windSpeed: Math.abs(Math.sin(timeScale * Math.PI * 2 + 4) * 15), // Vary between 0-15 mph
+      windDirection: (Math.sin(timeScale * Math.PI * 2 + 5) * 180 + 180) % 360, // Vary between 0-360 degrees
       dewPoint: EnvironmentalCalculator.calculateDewPoint(
         this.conditions.temperature,
         this.conditions.humidity
       ),
-      airDensity: this.conditions.airDensity, // Will be calculated below
-    };
+      density: 0 // Will be calculated below
+    }
 
     // Calculate air density
-    const tempK = this.conditions.temperature + 273.15; // Convert to Kelvin
-    const pressure = this.conditions.pressure * 100; // Convert hPa to Pa
-    this.conditions.airDensity = pressure / (287.05 * tempK);
+    this.conditions.density = EnvironmentalCalculator.calculateAirDensity(this.conditions)
 
-    this.lastUpdate = now;
-    this.notifySubscribers();
+    this.lastUpdate = now
+    this.notifySubscribers()
   }
 
-  public startMonitoring() {
+  public startMonitoring(): void {
     if (!this.updateInterval) {
-      this.updateInterval = setInterval(() => this.updateConditions(), 30000);
-      this.updateConditions(); // Initial update
+      this.updateInterval = setInterval(() => this.updateConditions(), 1000)
+      this.updateConditions() // Initial update
     }
   }
 
-  public stopMonitoring() {
+  public stopMonitoring(): void {
     if (this.updateInterval) {
-      clearInterval(this.updateInterval);
-      this.updateInterval = null;
+      clearInterval(this.updateInterval)
+      this.updateInterval = null
+    }
+  }
+
+  public getConditions(): EnvironmentalConditions {
+    return { ...this.conditions }
+  }
+
+  public calculateWindEffect(
+    shotDirection: number
+  ): { headwind: number; crosswind: number } {
+    return EnvironmentalCalculator.calculateWindEffect(
+      this.conditions.windSpeed,
+      this.conditions.windDirection,
+      shotDirection
+    )
+  }
+
+  public calculateAltitudeEffect(): number {
+    return EnvironmentalCalculator.calculateAltitudeEffect(this.conditions.altitude)
+  }
+
+  async getCurrentConditions(): Promise<EnvironmentalConditions> {
+    // In a real application, this would fetch from a weather API
+    return {
+      temperature: 70,
+      humidity: 60,
+      altitude: 100,
+      windSpeed: 5,
+      windDirection: 45,
+      pressure: 1013.25,
+      dewPoint: EnvironmentalCalculator.calculateDewPoint(70, 60),
+      density: EnvironmentalCalculator.calculateAirDensity({
+        temperature: 70,
+        humidity: 60,
+        pressure: 1013.25,
+        altitude: 100,
+        windSpeed: 5,
+        windDirection: 45,
+        dewPoint: EnvironmentalCalculator.calculateDewPoint(70, 60),
+        density: 1.225
+      })
     }
   }
 }
+
+export const environmentalService = EnvironmentalService.getInstance()

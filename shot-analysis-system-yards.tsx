@@ -1,9 +1,50 @@
+'use client'
+
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { BarChart2, Clock, Target, Wind, Maximize2, Filter } from 'lucide-react';
 
+interface Shot {
+  id: string;
+  date: string;
+  distance: number;
+  yardsOffline: number;
+  club: string;
+  conditions: {
+    wind: number;
+    temp: number;
+  };
+}
+
+interface ShotHistoryProps {
+  shots: Shot[];
+  onSelectShot: (shot: Shot) => void;
+}
+
+interface StatisticalAnalysisProps {
+  shots: Shot[];
+}
+
+interface StatsAccumulator {
+  [key: string]: {
+    totalDistance: number;
+    totalOffline: number;
+    count: number;
+    distances: number[];
+    offlines: number[];
+  };
+}
+
+interface ClubStats {
+  club: string;
+  avgDistance: number;
+  avgOffline: number;
+  consistency: number;
+  dispersion: number;
+}
+
 // Shot History Component
-function ShotHistory({ shots, onSelectShot }) {
+function ShotHistory({ shots, onSelectShot }: ShotHistoryProps) {
   const [filter, setFilter] = useState('all');
   const [sortBy, setSortBy] = useState('date');
 
@@ -11,7 +52,11 @@ function ShotHistory({ shots, onSelectShot }) {
     if (filter === 'all') return true;
     return shot.club === filter;
   }).sort((a, b) => {
-    if (sortBy === 'date') return new Date(b.date) - new Date(a.date);
+    if (sortBy === 'date') {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return dateB - dateA;
+    }
     if (sortBy === 'distance') return b.distance - a.distance;
     if (sortBy === 'accuracy') return Math.abs(a.yardsOffline) - Math.abs(b.yardsOffline);
     return 0;
@@ -71,11 +116,11 @@ function ShotHistory({ shots, onSelectShot }) {
 }
 
 // Statistical Analysis Component
-function StatisticalAnalysis({ shots }) {
+function StatisticalAnalysis({ shots }: StatisticalAnalysisProps) {
   const [selectedMetric, setSelectedMetric] = useState('distance');
 
-  const calculateStats = () => {
-    const stats = shots.reduce((acc, shot) => {
+  const calculateStats = (): ClubStats[] => {
+    const stats = shots.reduce<StatsAccumulator>((acc, shot) => {
       if (!acc[shot.club]) {
         acc[shot.club] = {
           totalDistance: 0,
@@ -180,13 +225,13 @@ function StatisticalAnalysis({ shots }) {
 
 // Main Analysis System Component
 export default function AnalysisSystem() {
-  const [shots, setShots] = useState([]);
-  const [selectedShot, setSelectedShot] = useState(null);
+  const [shots, setShots] = useState<Shot[]>([]);
+  const [selectedShot, setSelectedShot] = useState<Shot | null>(null);
 
   useEffect(() => {
     // Simulate loading shot data with yards offline instead of degrees
     const mockShots = Array(20).fill(0).map((_, i) => ({
-      id: i,
+      id: i.toString(),
       date: new Date(2024, 0, i + 1).toISOString(),
       club: ['Driver', 'Iron', 'Wedge'][Math.floor(Math.random() * 3)],
       distance: Math.round(200 + Math.random() * 100),

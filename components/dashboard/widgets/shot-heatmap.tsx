@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { scaleLinear } from 'd3-scale';
-import { useClubSettings, formatDistance } from '@/lib/club-settings-context';
+import { useSettings, formatDistance } from '@/lib/club-settings-context';
 
 interface ShotPoint {
   x: number;
@@ -28,7 +28,7 @@ function generateHeatmapData(shots: ShotPoint[]) {
 }
 
 export function ShotHeatmapWidget() {
-  const { settings } = useClubSettings();
+  const { settings } = useSettings();
 
   // Example shot data
   const shots = React.useMemo(() => {

@@ -7,6 +7,64 @@ import { useWidgetConfig } from '@/lib/widget-config-context'
 import { Settings2, Thermometer, Droplets, Mountain, Gauge } from 'lucide-react'
 import { WidgetConfigModal } from '../widget-config-modal'
 
+interface ConditionCardProps {
+  id: string
+  title: string
+  icon: React.ReactNode
+}
+
+const ConditionCard: React.FC<ConditionCardProps> = ({ id, title, icon }) => {
+  const { conditions } = useEnvironmental()
+  const { formatTemperature, formatAltitude } = useSettings()
+
+  if (!conditions) {
+    return (
+      <div className="flex items-center p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+        <div className="flex items-center gap-2 flex-1">
+          {icon}
+          <div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              {title}
+            </div>
+            <div className="font-medium text-lg">--</div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const getValue = () => {
+    switch (id) {
+      case 'temperature':
+        return `${formatTemperature(Math.round(conditions.temperature * 10) / 10)}°`
+      case 'humidity':
+        return `${Math.round(conditions.humidity * 10) / 10}%`
+      case 'pressure':
+        return `${Math.round(conditions.pressure * 10) / 10} hPa`
+      case 'altitude':
+        return formatAltitude(Math.round(conditions.altitude))
+      case 'dewPoint':
+        return `${formatTemperature(Math.round(conditions.dewPoint * 10) / 10)}°`
+      default:
+        return '--'
+    }
+  }
+
+  return (
+    <div className="flex items-center p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+      <div className="flex items-center gap-2 flex-1">
+        {icon}
+        <div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            {title}
+          </div>
+          <div className="font-medium text-lg">{getValue()}</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function EnvironmentalConditionsWidget() {
   const { conditions } = useEnvironmental()
   const { formatTemperature, formatAltitude } = useSettings()
@@ -37,23 +95,6 @@ export function EnvironmentalConditionsWidget() {
     }
   }
 
-  const getVariableValue = (id: string) => {
-    switch (id) {
-      case 'temperature':
-        return `${formatTemperature(Math.round(conditions.temperature * 10) / 10)}°`
-      case 'humidity':
-        return `${Math.round(conditions.humidity * 10) / 10}%`
-      case 'pressure':
-        return `${Math.round(conditions.pressure * 10) / 10} hPa`
-      case 'altitude':
-        return formatAltitude(Math.round(conditions.altitude))
-      case 'dewPoint':
-        return `${formatTemperature(Math.round(conditions.dewPoint * 10) / 10)}°`
-      default:
-        return ''
-    }
-  }
-
   return (
     <div className="relative">
       <button
@@ -65,22 +106,12 @@ export function EnvironmentalConditionsWidget() {
 
       <div className="space-y-3 pt-2">
         {enabledVariables.map(variable => (
-          <div 
-            key={variable.id} 
-            className="flex items-center p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg"
-          >
-            <div className="flex items-center gap-2 flex-1">
-              {getVariableIcon(variable.id)}
-              <div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  {variable.name}
-                </div>
-                <div className="font-medium text-lg">
-                  {getVariableValue(variable.id)}
-                </div>
-              </div>
-            </div>
-          </div>
+          <ConditionCard
+            key={variable.id}
+            id={variable.id}
+            title={variable.name}
+            icon={getVariableIcon(variable.id)}
+          />
         ))}
       </div>
 

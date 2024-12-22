@@ -45,6 +45,11 @@ export default function ShotAnalysis() {
   const [shotData, setShotData] = useState(defaultShotData)
 
   useEffect(() => {
+    if (!conditions) {
+      setShotData(defaultShotData)
+      return
+    }
+
     setShotData({
       conditions: {
         temperature: formatTemperature(conditions.temperature),
@@ -154,6 +159,29 @@ export default function ShotAnalysis() {
       }
     })
   }, [shotData, isPremium])
+
+  if (!conditions) {
+    return (
+      <div className="space-y-4">
+        <Card className="bg-gray-900/80 backdrop-blur-sm border-gray-800">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-bold text-emerald-400">Shot Analysis</h2>
+                <p className="text-sm text-gray-400">Advanced shot metrics and visualization</p>
+              </div>
+              <div className="w-10 h-10 bg-emerald-500/20 rounded-full flex items-center justify-center">
+                <Target className="w-6 h-6 text-emerald-400" />
+              </div>
+            </div>
+            <div className="flex items-center justify-center h-32">
+              <div className="text-gray-400">Loading shot data...</div>
+            </div>
+          </div>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">

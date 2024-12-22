@@ -1,5 +1,20 @@
+'use client'
+
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+
+interface WindProfileData {
+  height: number;
+  baseSpeed: number;
+  actualSpeed: number;
+  turbulence: number;
+}
+
+interface WindProfileProps {
+  baseWindSpeed?: number;
+  roughnessLength?: number;
+  turbulenceIntensity?: number;
+}
 
 const WindProfileVisualizer = () => {
   const [windParams, setWindParams] = useState({
@@ -10,44 +25,53 @@ const WindProfileVisualizer = () => {
     stability: 'neutral'
   });
 
-  const [profileData, setProfileData] = useState([]);
+  const [profileData, setProfileData] = useState<WindProfileData[]>([]);
 
   useEffect(() => {
     updateProfile();
   }, [windParams]);
 
   const updateProfile = () => {
-    const heights = Array.from({ length: 26 }, (_, i) => i * 10); // 0 to 250ft
-    const data = heights.map(height => {
-      const speedRatio = Math.pow(height / 6, 0.03); // Power law
-      const baseSpeed = windParams.windSpeed * speedRatio;
-      
-      // Add turbulence component
-      const turbulence = Math.sin(height / 20) * (windParams.windSpeed * 0.15);
-      const actualSpeed = baseSpeed + turbulence;
+    const calculateProfile = () => {
+      const data: WindProfileData[] = [];
+      const referenceHeight = 10; // meters
+      const maxHeight = 100; // meters
+      const heightStep = 5; // meters
 
-      return {
-        height,
-        baseSpeed,
-        actualSpeed,
-        turbulence
-      };
-    });
+      for (let height = 0; height <= maxHeight; height += heightStep) {
+        // Power law wind profile
+        const baseSpeed = windParams.windSpeed * Math.pow(height / referenceHeight, 0.14);
+        
+        // Add turbulence component
+        const turbulence = (Math.random() - 0.5) * 2 * 0.2 * baseSpeed;
+        const actualSpeed = baseSpeed + turbulence;
 
-    setProfileData(data);
+        data.push({
+          height,
+          baseSpeed,
+          actualSpeed,
+          turbulence
+        });
+      }
+
+      return data;
+    };
+
+    setProfileData(calculateProfile());
   };
 
-  const CustomTooltip = ({ active, payload }) => {
-    if (!active || !payload) return null;
-
-    return (
-      <div className="bg-gray-900 p-3 rounded-lg border border-gray-700">
-        <p className="text-white">Height: {payload[0].payload.height} ft</p>
-        <p className="text-blue-400">Wind Speed: {payload[0].payload.actualSpeed.toFixed(1)} mph</p>
-        <p className="text-green-400">Base Profile: {payload[0].payload.baseSpeed.toFixed(1)} mph</p>
-        <p className="text-red-400">Turbulence: {payload[0].payload.turbulence.toFixed(2)} mph</p>
-      </div>
-    );
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-gray-900 p-3 rounded-lg border border-gray-700">
+          <p className="text-white">Height: {payload[0].payload.height}m</p>
+          <p className="text-emerald-400">Speed: {payload[0].payload.actualSpeed.toFixed(1)} m/s</p>
+          <p className="text-blue-400">Base: {payload[0].payload.baseSpeed.toFixed(1)} m/s</p>
+          <p className="text-red-400">Turbulence: {payload[0].payload.turbulence.toFixed(2)} m/s</p>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
@@ -93,48 +117,50 @@ const WindProfileVisualizer = () => {
 
         {/* Wind Profile Chart */}
         <div className="h-96">
-          <LineChart
-            width={800}
-            height={400}
-            data={profileData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-            <XAxis 
-              dataKey="actualSpeed"
-              label={{ value: 'Wind Speed (mph)', position: 'bottom', style: { fill: 'white' } }}
-              stroke="#fff"
-            />
-            <YAxis 
-              dataKey="height"
-              label={{ value: 'Height (ft)', angle: -90, position: 'left', style: { fill: 'white' } }}
-              stroke="#fff"
-            />
-            <Tooltip content={<CustomTooltip />} />
-            
-            <Line 
-              type="monotone"
-              dataKey="baseSpeed"
-              stroke="#4ade80"
-              strokeWidth={2}
-              dot={false}
-              name="Base Profile"
-            />
-            <Line 
-              type="monotone"
-              dataKey="actualSpeed"
-              stroke="#60a5fa"
-              strokeWidth={2}
-              dot={false}
-              name="Actual Wind"
-            />
-            <ReferenceLine 
-              x={windParams.windSpeed} 
-              stroke="#fff" 
-              strokeDasharray="3 3"
-              label={{ value: 'Surface Wind', position: 'left', style: { fill: 'white' } }}
-            />
-          </LineChart>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              width={800}
+              height={400}
+              data={profileData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+              <XAxis 
+                dataKey="actualSpeed"
+                label={{ value: 'Wind Speed (m/s)', position: 'bottom', style: { fill: 'white' } }}
+                stroke="#fff"
+              />
+              <YAxis 
+                dataKey="height"
+                label={{ value: 'Height (m)', angle: -90, position: 'left', style: { fill: 'white' } }}
+                stroke="#fff"
+              />
+              <Tooltip content={<CustomTooltip />} />
+              
+              <Line 
+                type="monotone"
+                dataKey="baseSpeed"
+                stroke="#4ade80"
+                strokeWidth={2}
+                dot={false}
+                name="Base Profile"
+              />
+              <Line 
+                type="monotone"
+                dataKey="actualSpeed"
+                stroke="#60a5fa"
+                strokeWidth={2}
+                dot={false}
+                name="Actual Wind"
+              />
+              <ReferenceLine 
+                x={windParams.windSpeed} 
+                stroke="#fff" 
+                strokeDasharray="3 3"
+                label={{ value: 'Surface Wind', position: 'left', style: { fill: 'white' } }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
 
         {/* Wind Vector Display */}

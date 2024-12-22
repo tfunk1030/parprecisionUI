@@ -1,5 +1,29 @@
+'use client'
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Wind, Target } from 'lucide-react';
+
+interface TrajectoryFactors {
+  low: number;
+  medium: number;
+  high: number;
+}
+
+interface EffectData {
+  windType: string;
+  headWindEffect: number;
+  crossWindEffect: number;
+  totalEffect: number;
+  adjustedDistance: number;
+  relativeAngle: number;
+  trajectoryFactor: number;
+}
+
+const trajectoryFactors: TrajectoryFactors = {
+  low: 0.7,
+  medium: 1.0,
+  high: 1.3
+};
 
 const ProWindCalculator = () => {
   const [windData, setWindData] = useState({
@@ -10,11 +34,11 @@ const ProWindCalculator = () => {
   const [shotData, setShotData] = useState({
     distance: '',
     direction: '',  // 0-360 degrees, 0 = N, 90 = E
-    trajectory: 'medium'  // low, medium, high
+    trajectory: 'medium' as keyof TrajectoryFactors  // low, medium, high
   });
 
-  const [effectData, setEffectData] = useState(null);
-  const canvasRef = useRef(null);
+  const [effectData, setEffectData] = useState<EffectData | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const calculateWindEffect = () => {
     if (!windData.speed || !windData.direction || !shotData.direction || !shotData.distance) {
@@ -32,11 +56,6 @@ const ProWindCalculator = () => {
     const crossWindEffect = windSpeed * Math.sin(relativeAngle);
 
     // Trajectory factors
-    const trajectoryFactors = {
-      low: 0.7,
-      medium: 1.0,
-      high: 1.3
-    };
     const trajectoryFactor = trajectoryFactors[shotData.trajectory];
 
     // Calculate total effects
@@ -69,6 +88,8 @@ const ProWindCalculator = () => {
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
     const radius = Math.min(centerX, centerY) - 40;
@@ -249,7 +270,7 @@ const ProWindCalculator = () => {
               <label className="block text-sm font-medium text-emerald-500 mb-1">Shot Trajectory</label>
               <select
                 value={shotData.trajectory}
-                onChange={(e) => setShotData({...shotData, trajectory: e.target.value})}
+                onChange={(e) => setShotData({...shotData, trajectory: e.target.value as keyof TrajectoryFactors})}
                 className="w-full bg-gray-900/50 border border-gray-700 rounded-lg p-3 text-emerald-300 focus:ring-2 focus:ring-emerald-500"
               >
                 <option value="low">Low</option>

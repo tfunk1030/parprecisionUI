@@ -1,58 +1,47 @@
-import React, { createContext, useContext, useEffect, useRef } from 'react';
-import * as THREE from 'three';
+'use client'
+
+import React, { createContext, useContext, useRef, useEffect } from 'react'
+import { WebGLRenderer } from 'three'
 
 interface WebGLContextType {
-  renderer: THREE.WebGLRenderer | null;
-  initRenderer: (canvas: HTMLCanvasElement) => void;
+  renderer: WebGLRenderer | null
 }
 
-const WebGLContext = createContext<WebGLContextType>({
-  renderer: null,
-  initRenderer: () => {},
-});
-
-export function WebGLProvider({ children }: { children: React.ReactNode }) {
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-
-  const initRenderer = (canvas: HTMLCanvasElement) => {
-    if (!rendererRef.current) {
-      const renderer = new THREE.WebGLRenderer({
-        canvas,
-        antialias: true,
-        alpha: true,
-        powerPreference: 'high-performance',
-      });
-
-      renderer.setPixelRatio(window.devicePixelRatio);
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.outputEncoding = THREE.sRGBEncoding;
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      
-      // Enable WebGL optimizations
-      renderer.physicallyCorrectLights = true;
-      
-      rendererRef.current = renderer;
-    }
-  };
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (rendererRef.current) {
-        rendererRef.current.setSize(window.innerWidth, window.innerHeight);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  return (
-    <WebGLContext.Provider value={{ renderer: rendererRef.current, initRenderer }}>
-      {children}
-    </WebGLContext.Provider>
-  );
-}
+const WebGLContext = createContext<WebGLContextType>({ renderer: null })
 
 export function useWebGL() {
-  return useContext(WebGLContext);
+  return useContext(WebGLContext)
+}
+
+export function WebGLProvider({ children }: { children: React.ReactNode }) {
+  const rendererRef = useRef<WebGLRenderer | null>(null)
+
+  useEffect(() => {
+    if (!rendererRef.current) {
+      const renderer = new WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        powerPreference: 'high-performance'
+      })
+
+      renderer.setPixelRatio(window.devicePixelRatio)
+      renderer.setClearColor(0x000000, 0)
+      renderer.setSize(window.innerWidth, window.innerHeight)
+
+      rendererRef.current = renderer
+    }
+
+    return () => {
+      if (rendererRef.current) {
+        rendererRef.current.dispose()
+        rendererRef.current = null
+      }
+    }
+  }, [])
+
+  return (
+    <WebGLContext.Provider value={{ renderer: rendererRef.current }}>
+      {children}
+    </WebGLContext.Provider>
+  )
 }

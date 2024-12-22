@@ -6,7 +6,7 @@ const ShotVisualization = ({
   windSpeed = 0,  // mph
   windDirection = 0  // degrees, 0 is N, 90 is E
 }) => {
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   
   // Constants for drawing
   const PADDING = 40;
@@ -16,7 +16,11 @@ const ShotVisualization = ({
   
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
+    
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
     const width = canvas.width;
     const height = canvas.height;
 

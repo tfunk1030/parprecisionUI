@@ -1,22 +1,34 @@
+'use client'
+
 import React, { useState, useEffect } from 'react';
 import { ArrowUpRight, Plus, Target } from 'lucide-react';
 
+interface Club {
+  name: string;
+  distance: number;
+  loft: number;
+  ballSpeed: number;
+  launchAngle: number;
+  spinRate: number;
+  [key: string]: string | number; // Add index signature
+}
+
 export default function ClubSelection() {
-  const [clubs, setClubs] = useState([]);
-  const [selectedClub, setSelectedClub] = useState(null);
+  const [clubs, setClubs] = useState<Club[]>([]);
+  const [selectedClub, setSelectedClub] = useState<Club | null>(null);
   const [editMode, setEditMode] = useState(false);
-  const [newClub, setNewClub] = useState({
+  const [newClub, setNewClub] = useState<Club>({
     name: '',
-    distance: '',
-    loft: '',
-    ballSpeed: '',
-    launchAngle: '',
-    spinRate: ''
+    distance: 0,
+    loft: 0,
+    ballSpeed: 0,
+    launchAngle: 0,
+    spinRate: 0
   });
 
   // Initialize with some default clubs
   useEffect(() => {
-    const defaultClubs = [
+    const defaultClubs: Club[] = [
       { name: 'Driver', distance: 260, loft: 10.5, ballSpeed: 167, launchAngle: 14.2, spinRate: 2800 },
       { name: '3 Wood', distance: 235, loft: 15, ballSpeed: 158, launchAngle: 13.5, spinRate: 3400 },
       { name: '5 Iron', distance: 185, loft: 27, ballSpeed: 138, launchAngle: 17.8, spinRate: 5200 },
@@ -27,7 +39,7 @@ export default function ClubSelection() {
     setClubs(defaultClubs);
   }, []);
 
-  const handleClubSelect = (club) => {
+  const handleClubSelect = (club: Club) => {
     setSelectedClub(club);
   };
 
@@ -35,16 +47,16 @@ export default function ClubSelection() {
     setClubs([...clubs, {...newClub}]);
     setNewClub({
       name: '',
-      distance: '',
-      loft: '',
-      ballSpeed: '',
-      launchAngle: '',
-      spinRate: ''
+      distance: 0,
+      loft: 0,
+      ballSpeed: 0,
+      launchAngle: 0,
+      spinRate: 0
     });
     setEditMode(false);
   };
 
-  const getDistanceClass = (distance) => {
+  const getDistanceClass = (distance: number) => {
     if (distance > 230) return 'bg-red-500/20 border-red-500/30';
     if (distance > 180) return 'bg-orange-500/20 border-orange-500/30';
     if (distance > 150) return 'bg-yellow-500/20 border-yellow-500/30';
@@ -69,88 +81,71 @@ export default function ClubSelection() {
       {/* Club Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
         {clubs.map((club) => (
-          <button
+          <div
             key={club.name}
             onClick={() => handleClubSelect(club)}
-            className={`p-4 rounded-xl border transition-all ${
-              selectedClub?.name === club.name 
-                ? 'ring-2 ring-blue-500 border-blue-500/50' 
-                : `${getDistanceClass(club.distance)}`
-            } hover:scale-102`}
+            className={`${
+              selectedClub?.name === club.name ? 'ring-2 ring-blue-500' : ''
+            } ${getDistanceClass(club.distance)} 
+            rounded-xl border p-4 cursor-pointer transition-all hover:scale-[1.02]`}
           >
             <div className="flex justify-between items-start mb-2">
-              <span className="text-white font-semibold">{club.name}</span>
-              <Target size={16} className="text-blue-400" />
-            </div>
-            <div className="text-2xl font-bold text-white mb-1">
-              {club.distance}
-              <span className="text-sm text-gray-400 ml-1">yards</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
-              <div className="text-gray-400">
-                Loft: <span className="text-gray-300">{club.loft}°</span>
-              </div>
-              <div className="text-gray-400">
-                Launch: <span className="text-gray-300">{club.launchAngle}°</span>
-              </div>
-              <div className="text-gray-400">
-                Speed: <span className="text-gray-300">{club.ballSpeed} mph</span>
-              </div>
-              <div className="text-gray-400">
-                Spin: <span className="text-gray-300">{club.spinRate.toLocaleString()}</span>
+              <h3 className="text-lg font-semibold text-white">{club.name}</h3>
+              <div className="flex items-center gap-1 text-sm text-gray-400">
+                <Target size={14} />
+                <span>{club.distance}y</span>
               </div>
             </div>
-          </button>
+
+            <div className="space-y-1 text-sm text-gray-400">
+              <div className="flex justify-between">
+                <span>Loft:</span>
+                <span>{club.loft}°</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Ball Speed:</span>
+                <span>{club.ballSpeed} mph</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Launch:</span>
+                <span>{club.launchAngle}°</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Spin:</span>
+                <span>{club.spinRate} rpm</span>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 
       {/* Add Club Form */}
       {editMode && (
-        <div className="bg-gray-800 rounded-xl p-4 mb-6">
+        <div className="bg-gray-800 rounded-xl p-4">
           <h3 className="text-lg font-semibold text-white mb-4">Add New Club</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {Object.keys(newClub).map((field) => (
+          <div className="grid grid-cols-2 gap-4">
+            {['name', 'distance', 'loft', 'ballSpeed', 'launchAngle', 'spinRate'].map((field) => (
               <div key={field}>
-                <label className="block text-sm font-medium text-gray-400 mb-1">
-                  {field.charAt(0).toUpperCase() + field.slice(1)}
+                <label className="block text-sm text-gray-400 mb-1 capitalize">
+                  {field.replace(/([A-Z])/g, ' $1').trim()}
                 </label>
                 <input
                   type={field === 'name' ? 'text' : 'number'}
                   value={newClub[field]}
-                  onChange={(e) => setNewClub({...newClub, [field]: e.target.value})}
+                  onChange={(e) => setNewClub({...newClub, [field]: field === 'name' ? e.target.value : Number(e.target.value)})}
                   className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 
                            border border-gray-600 focus:ring-2 focus:ring-blue-500"
-                  placeholder={field === 'name' ? 'Club name' : '0'}
                 />
               </div>
             ))}
           </div>
-          <button
-            onClick={handleAddClub}
-            className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white 
-                     py-2 rounded-lg transition-colors"
-          >
-            Add Club
-          </button>
-        </div>
-      )}
-
-      {/* Selected Club Details */}
-      {selectedClub && (
-        <div className="bg-gray-800/50 rounded-xl p-4">
-          <h3 className="text-lg font-semibold text-white mb-3">Club Details</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: 'Carry Distance', value: `${selectedClub.distance} yards` },
-              { label: 'Ball Speed', value: `${selectedClub.ballSpeed} mph` },
-              { label: 'Launch Angle', value: `${selectedClub.launchAngle}°` },
-              { label: 'Spin Rate', value: selectedClub.spinRate.toLocaleString() }
-            ].map(detail => (
-              <div key={detail.label} className="bg-black/30 rounded-lg p-3">
-                <div className="text-gray-400 text-sm">{detail.label}</div>
-                <div className="text-white font-bold">{detail.value}</div>
-              </div>
-            ))}
+          <div className="mt-4 flex justify-end">
+            <button
+              onClick={handleAddClub}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+            >
+              Add Club
+            </button>
           </div>
         </div>
       )}

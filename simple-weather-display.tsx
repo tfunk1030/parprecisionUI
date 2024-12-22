@@ -1,6 +1,13 @@
 import React from 'react';
 import { Thermometer, Droplets, Wind, Gauge, ArrowUp, Mountain } from 'lucide-react';
 
+interface WeatherCardProps {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  subValue?: string;
+}
+
 const SimpleWeatherDisplay = () => {
   const mockWeather = {
     current: {
@@ -20,7 +27,7 @@ const SimpleWeatherDisplay = () => {
     }
   };
 
-  const WeatherCard = ({ icon, label, value, subValue }) => (
+  const WeatherCard = ({ icon, label, value, subValue }: WeatherCardProps) => (
     <div className="bg-gray-700/50 p-4 rounded-lg">
       <div className="flex items-center gap-2 mb-2">
         {icon}

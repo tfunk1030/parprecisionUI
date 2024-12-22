@@ -1,148 +1,121 @@
+'use client'
+
 import React, { useState, useEffect } from 'react';
 import { Cloud, Wind, Thermometer, Droplets, Mountain, ArrowUpRight } from 'lucide-react';
 
-export default function WeatherDisplay({ onWeatherChange }) {
-  const [weather, setWeather] = useState({
+interface WeatherData {
+  temperature: number;
+  humidity: number;
+  pressure: number;
+  windSpeed: number;
+  windDirection: number;
+  altitude: number;
+}
+
+interface WeatherDisplayProps {
+  onWeatherChange?: (weather: WeatherData) => void;
+}
+
+export default function WeatherDisplay({ onWeatherChange }: WeatherDisplayProps) {
+  const [weather, setWeather] = useState<WeatherData>({
     temperature: 72,
     humidity: 60,
-    windSpeed: 0,
-    windDirection: 0,
-    altitude: 0,
-    pressure: 29.92
+    pressure: 29.92,
+    windSpeed: 10,
+    windDirection: 45,
+    altitude: 0
   });
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState(null);
-
-  const fetchWeatherData = async () => {
-    setIsLoading(true);
-    try {
-      const response = await window.fs.readFile('weather-api.js');
-      const data = JSON.parse(new TextDecoder().decode(response));
-      setWeather({
-        temperature: data.temperature || weather.temperature,
-        humidity: data.humidity || weather.humidity,
-        windSpeed: data.windSpeed || weather.windSpeed,
-        windDirection: data.windDirection || weather.windDirection,
-        altitude: data.altitude || weather.altitude,
-        pressure: data.pressure || weather.pressure
-      });
-      setLastUpdated(new Date());
-      onWeatherChange?.(weather);
-    } catch (error) {
-      console.error('Error fetching weather:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const WeatherCard = ({ icon: Icon, label, value, unit, color = 'blue' }) => (
-    <div className={`bg-${color}-900/10 backdrop-blur-sm p-4 rounded-xl border border-${color}-900/20`}>
-      <div className="flex items-center gap-3 mb-2">
-        <Icon className={`text-${color}-400`} size={24} />
-        <span className="text-gray-400">{label}</span>
-      </div>
-      <div className="text-2xl font-bold text-white">
-        {value}
-        <span className="text-sm text-gray-400 ml-1">{unit}</span>
-      </div>
-    </div>
-  );
+  useEffect(() => {
+    onWeatherChange?.(weather);
+  }, [weather, onWeatherChange]);
 
   return (
-    <div className="bg-gray-900 rounded-2xl p-6 shadow-xl">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h2 className="text-xl font-bold text-white">Weather Conditions</h2>
-          {lastUpdated && (
-            <p className="text-sm text-gray-400">
-              Updated {lastUpdated.toLocaleTimeString()}
-            </p>
-          )}
-        </div>
-        
-        <button
-          onClick={fetchWeatherData}
-          disabled={isLoading}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 
-                     text-white rounded-lg transition-colors disabled:opacity-50"
-        >
-          <ArrowUpRight size={18} />
-          {isLoading ? 'Updating...' : 'Update Now'}
-        </button>
-      </div>
-
-      {/* Weather Grid */}
+    <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-emerald-900/50">
+      <h2 className="text-xl font-semibold text-emerald-400 mb-4">Weather Conditions</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <WeatherCard
-          icon={Thermometer}
-          label="Temperature"
-          value={weather.temperature}
-          unit="°F"
-          color="red"
-        />
-        
-        <WeatherCard
-          icon={Wind}
-          label="Wind"
-          value={`${weather.windSpeed} @ ${weather.windDirection}°`}
-          unit="mph"
-          color="blue"
-        />
-        
-        <WeatherCard
-          icon={Droplets}
-          label="Humidity"
-          value={weather.humidity}
-          unit="%"
-          color="green"
-        />
-        
-        <WeatherCard
-          icon={Mountain}
-          label="Altitude"
-          value={weather.altitude}
-          unit="ft"
-          color="purple"
-        />
-        
-        <WeatherCard
-          icon={Cloud}
-          label="Pressure"
-          value={weather.pressure}
-          unit="inHg"
-          color="indigo"
-        />
-      </div>
+        <div className="bg-gray-800/50 p-4 rounded-xl">
+          <div className="flex items-center gap-2 text-emerald-400 mb-1">
+            <Thermometer className="w-4 h-4" />
+            <span className="text-sm">Temperature</span>
+          </div>
+          <input
+            type="number"
+            value={weather.temperature}
+            onChange={(e) => setWeather({ ...weather, temperature: parseFloat(e.target.value) })}
+            className="w-full bg-transparent text-2xl text-white focus:outline-none"
+          />
+          <span className="text-sm text-gray-400">°F</span>
+        </div>
 
-      {/* Shot Impact Panel */}
-      <div className="mt-6 bg-gray-800/50 rounded-xl p-4">
-        <h3 className="text-lg font-semibold text-white mb-3">Shot Impact Factors</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {[
-            {
-              label: 'Air Density',
-              value: ((weather.pressure / 29.92) * (459.67 / (weather.temperature + 459.67))).toFixed(3),
-              impact: 'Affects ball flight and distance'
-            },
-            {
-              label: 'Wind Effect',
-              value: `${Math.round(Math.cos(weather.windDirection * Math.PI / 180) * weather.windSpeed)} mph`,
-              impact: 'Headwind/tailwind component'
-            },
-            {
-              label: 'Altitude Effect',
-              value: `${(weather.altitude / 1000 * 2).toFixed(1)}%`,
-              impact: 'Distance increase per 1000ft'
-            }
-          ].map(factor => (
-            <div key={factor.label} className="bg-black/30 rounded-lg p-3">
-              <div className="text-gray-400 text-sm">{factor.label}</div>
-              <div className="text-white font-bold mb-1">{factor.value}</div>
-              <div className="text-xs text-gray-500">{factor.impact}</div>
-            </div>
-          ))}
+        <div className="bg-gray-800/50 p-4 rounded-xl">
+          <div className="flex items-center gap-2 text-emerald-400 mb-1">
+            <Wind className="w-4 h-4" />
+            <span className="text-sm">Wind Speed</span>
+          </div>
+          <input
+            type="number"
+            value={weather.windSpeed}
+            onChange={(e) => setWeather({ ...weather, windSpeed: parseFloat(e.target.value) })}
+            className="w-full bg-transparent text-2xl text-white focus:outline-none"
+          />
+          <span className="text-sm text-gray-400">mph</span>
+        </div>
+
+        <div className="bg-gray-800/50 p-4 rounded-xl">
+          <div className="flex items-center gap-2 text-emerald-400 mb-1">
+            <ArrowUpRight className="w-4 h-4" />
+            <span className="text-sm">Wind Direction</span>
+          </div>
+          <input
+            type="number"
+            value={weather.windDirection}
+            onChange={(e) => setWeather({ ...weather, windDirection: parseFloat(e.target.value) })}
+            className="w-full bg-transparent text-2xl text-white focus:outline-none"
+          />
+          <span className="text-sm text-gray-400">degrees</span>
+        </div>
+
+        <div className="bg-gray-800/50 p-4 rounded-xl">
+          <div className="flex items-center gap-2 text-emerald-400 mb-1">
+            <Droplets className="w-4 h-4" />
+            <span className="text-sm">Humidity</span>
+          </div>
+          <input
+            type="number"
+            value={weather.humidity}
+            onChange={(e) => setWeather({ ...weather, humidity: parseFloat(e.target.value) })}
+            className="w-full bg-transparent text-2xl text-white focus:outline-none"
+          />
+          <span className="text-sm text-gray-400">%</span>
+        </div>
+
+        <div className="bg-gray-800/50 p-4 rounded-xl">
+          <div className="flex items-center gap-2 text-emerald-400 mb-1">
+            <Cloud className="w-4 h-4" />
+            <span className="text-sm">Pressure</span>
+          </div>
+          <input
+            type="number"
+            value={weather.pressure}
+            onChange={(e) => setWeather({ ...weather, pressure: parseFloat(e.target.value) })}
+            className="w-full bg-transparent text-2xl text-white focus:outline-none"
+          />
+          <span className="text-sm text-gray-400">inHg</span>
+        </div>
+
+        <div className="bg-gray-800/50 p-4 rounded-xl">
+          <div className="flex items-center gap-2 text-emerald-400 mb-1">
+            <Mountain className="w-4 h-4" />
+            <span className="text-sm">Altitude</span>
+          </div>
+          <input
+            type="number"
+            value={weather.altitude}
+            onChange={(e) => setWeather({ ...weather, altitude: parseFloat(e.target.value) })}
+            className="w-full bg-transparent text-2xl text-white focus:outline-none"
+          />
+          <span className="text-sm text-gray-400">ft</span>
         </div>
       </div>
     </div>

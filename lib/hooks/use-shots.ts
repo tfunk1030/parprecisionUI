@@ -25,6 +25,8 @@ function generateTestShots(): Shot[] {
       'PW': { distance: 130, spread: 8 }
     }[club]
 
+    if (!baseStats) return
+
     // Generate 20 shots for each club
     for (let i = 0; i < 20; i++) {
       // Add some random variation to distance and accuracy

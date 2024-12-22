@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, useState } from 'react'
 import { Slider } from './ui/slider'
-import Flight3DVisualization from './flight-3d-viz'
+import { FlightViz } from './flight-3d-viz'
 
 export default function BallFlightVisualizer() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -152,10 +152,9 @@ export default function BallFlightVisualizer() {
         {/* Visualization */}
         <div className="relative bg-gray-800 rounded-xl overflow-hidden aspect-[3/4] w-full shadow-lg">
           {view3D ? (
-            <Flight3DVisualization
+            <FlightViz
               distance={flightStats.distance}
               height={flightStats.height}
-              spin={params.spin}
               launchAngle={params.launchAngle}
             />
           ) : (

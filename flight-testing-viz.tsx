@@ -1,39 +1,61 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } from 'recharts';
 
+interface TrajectoryPoint {
+  distance: number;
+  height: number;
+  speed: number;
+}
+
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+
 // Error Boundary Component
-class ErrorBoundary extends React.Component {
-  constructor(props) {
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(_: Error): ErrorBoundaryState {
     return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Error:', error);
+    console.error('Error Info:', errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div className="p-6 bg-red-900/20 rounded-lg text-red-200 border border-red-900">
-          <h2 className="text-xl font-bold mb-2">Something went wrong</h2>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="px-4 py-2 bg-red-700 rounded-lg hover:bg-red-600 transition-colors"
-          >
-            Reload Application
-          </button>
+        <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+          <h3 className="font-bold mb-2">Something went wrong</h3>
+          <p>Please try refreshing the page or contact support if the issue persists.</p>
         </div>
       );
     }
+
     return this.props.children;
   }
 }
 
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    payload: TrajectoryPoint;
+  }>;
+}
+
 const BallFlightVisualizer = () => {
-  const [trajectory, setTrajectory] = useState([]);
+  const [trajectory, setTrajectory] = useState<TrajectoryPoint[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [animationProgress, setAnimationProgress] = useState(0);
 
   // Basic physics constants
@@ -72,7 +94,7 @@ const BallFlightVisualizer = () => {
         y: 85    // ft/s (launch angle ~20 degrees)
       };
 
-      const points = [];
+      const points: TrajectoryPoint[] = [];
       let state = {
         x: 0,
         y: 0,
@@ -126,7 +148,7 @@ const BallFlightVisualizer = () => {
     ? Math.round(Math.max(...trajectory.map(p => p.speed)))
     : 0;
 
-  const CustomTooltip = ({ active, payload }) => {
+  const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
     if (!active || !payload || !payload.length) return null;
 
     return (

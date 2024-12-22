@@ -1,8 +1,40 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
+interface Conditions {
+  temperature: string;
+  humidity: string;
+  pressure: string;
+  altitude: string;
+  wind: {
+    speed: string;
+    direction: string;
+  };
+}
+
+interface FlightPath {
+  apex: string;
+  landingAngle: string;
+  carry: string;
+  total: string;
+}
+
+interface ShotData {
+  intendedYardage: number;
+  adjustedYardage: number;
+  actualYardage: number;
+  suggestedClub: string;
+  alternateClub: string;
+  flightPath: FlightPath;
+}
+
+interface ShotAnalysisData {
+  conditions: Conditions;
+  shot: ShotData;
+}
+
 const ShotAnalysisScreen = () => {
-  const shotData = {
+  const shotData: ShotAnalysisData = {
     conditions: {
       temperature: "72°F",
       humidity: "45%",
