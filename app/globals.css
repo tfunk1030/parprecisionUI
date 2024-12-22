@@ -123,3 +123,12 @@
 .widget-moderate .text-xl {
   font-size: 1.2em;
 }
+
+/* Mobile vertical slider styles */
+.wind-direction-slider,
+.shot-direction-slider {
+  -webkit-appearance: slider-vertical;
+  width: 8px;
+  height: 200px;
+  background: #374151;
+}

@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useEnvironmental } from '@/lib/hooks/use-environmental'
 import { useClubSettings } from '@/lib/club-settings-context'
 import { usePremium } from '@/lib/premium-context'
 import { useSettings } from '@/lib/settings-context'
+import { useShotCalc } from '@/lib/shot-calc-context'
 import { 
   Target, 
   Wind, 
@@ -20,34 +21,57 @@ export default function ShotCalculatorPage() {
   const { getRecommendedClub, clubs } = useClubSettings()
   const { isPremium, setShowUpgradeModal } = usePremium()
   const { settings, convertDistance, formatDistance, formatTemperature, formatAltitude, convertAltitude } = useSettings()
+  const { setShotCalcData } = useShotCalc()
   const [targetYardage, setTargetYardage] = useState(150)
+  const [lastUpdate, setLastUpdate] = useState<number | null>(null)
 
-  // Calculate adjustments based on environmental conditions
-  const adjustments = useMemo(() => {
+  // Calculate all adjustments in one memoized function
+  const calculateAdjustments = useCallback(() => {
     if (!conditions) return null;
 
-    // Convert altitude to meters for calculations if needed
     const altitudeInMeters = settings.altitudeUnit === 'feet' 
       ? convertAltitude(conditions.altitude, 'meters')
       : conditions.altitude
 
-    const densityEffect = (conditions.density - 1.225) * targetYardage * 0.1 // Direct yardage effect
-    const altitudeEffect = altitudeInMeters * 0.00018 * targetYardage // Yardage effect from altitude
-    const humidityEffect = (conditions.humidity - 50) * 0.0002 * targetYardage // Yardage effect from humidity
-    const temperatureEffect = (conditions.temperature - 20) * 0.001 * targetYardage // Yardage effect from temperature
+    const densityEffect = (conditions.density - 1.225) * targetYardage * 0.1
+    const altitudeEffect = altitudeInMeters * 0.00018 * targetYardage
+    const humidityEffect = (conditions.humidity - 50) * 0.0002 * targetYardage
+    const temperatureEffect = (conditions.temperature - 20) * 0.001 * targetYardage
 
     const totalEffect = densityEffect + altitudeEffect + humidityEffect + temperatureEffect
     const adjustedYardage = targetYardage + totalEffect
 
     return {
+      adjustedYardage,
       densityEffect,
       altitudeEffect,
       humidityEffect,
       temperatureEffect,
-      totalEffect,
-      adjustedYardage
+      totalEffect
     }
   }, [conditions, targetYardage, settings.altitudeUnit, convertAltitude])
+
+  // Memoize the results
+  const adjustments = useMemo(() => calculateAdjustments(), [calculateAdjustments])
+
+  // Update context only when needed
+  useEffect(() => {
+    // Prevent multiple updates in the same render cycle
+    const now = Date.now()
+    if (lastUpdate && now - lastUpdate < 100) return;
+
+    if (conditions && adjustments) {
+      setLastUpdate(now)
+      setShotCalcData({
+        targetYardage,
+        elevation: conditions.altitude,
+        temperature: conditions.temperature,
+        humidity: conditions.humidity,
+        pressure: conditions.pressure,
+        adjustedDistance: adjustments.adjustedYardage
+      })
+    }
+  }, [conditions, adjustments, targetYardage, setShotCalcData, lastUpdate])
 
   const recommendedClub = useMemo(() => 
     adjustments ? getRecommendedClub(adjustments.adjustedYardage) : null, 
@@ -90,7 +114,7 @@ export default function ShotCalculatorPage() {
             max={settings.distanceUnit === 'yards' ? '300' : '275'}
             value={targetYardage}
             onChange={(e) => setTargetYardage(parseInt(e.target.value))}
-            className="flex-1"
+            className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-blue-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:shadow-blue-500/50 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-blue-500 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:shadow-lg [&::-moz-range-thumb]:shadow-blue-500/50"
           />
           <div className="text-2xl font-bold w-32 text-right">
             {formatDistance(targetYardage)}
