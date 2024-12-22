@@ -36,19 +36,19 @@ export function AnalysisView({ shots }: AnalysisViewProps) {
       <div className="grid grid-cols-3 gap-4">
         <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Consistency</h3>
-          <p className="mt-1 text-2xl font-semibold">
+          <p className={`mt-1 text-2xl font-semibold ${analysis.consistency >= 0.85 ? 'text-blue-500' : 'text-red-500'}`}>
             {(analysis.consistency * 100).toFixed(1)}%
           </p>
         </div>
         <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Dispersion</h3>
-          <p className="mt-1 text-2xl font-semibold">
+          <p className={`mt-1 text-2xl font-semibold ${analysis.dispersion <= 10 ? 'text-blue-500' : 'text-red-500'}`}>
             {analysis.dispersion.toFixed(1)}y
           </p>
         </div>
         <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Efficiency</h3>
-          <p className="mt-1 text-2xl font-semibold">
+          <p className={`mt-1 text-2xl font-semibold ${analysis.efficiency >= 0.9 ? 'text-blue-500' : 'text-red-500'}`}>
             {(analysis.efficiency * 100).toFixed(1)}%
           </p>
         </div>
@@ -58,26 +58,39 @@ export function AnalysisView({ shots }: AnalysisViewProps) {
       <div className="h-64 bg-white dark:bg-gray-800 rounded-lg shadow p-4">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={trendData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="index" />
-            <YAxis />
-            <Tooltip />
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis dataKey="index" stroke="#9CA3AF" />
+            <YAxis stroke="#9CA3AF" />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: '#1F2937',
+                border: 'none',
+                borderRadius: '0.5rem',
+                color: '#F3F4F6'
+              }}
+            />
             <Line
               type="monotone"
               dataKey="distance"
-              stroke="#10B981"
+              stroke="#3B82F6"
+              strokeWidth={2}
+              dot={{ fill: '#3B82F6' }}
               name="Distance"
             />
             <Line
               type="monotone"
               dataKey="height"
-              stroke="#3B82F6"
+              stroke="#60A5FA"
+              strokeWidth={2}
+              dot={{ fill: '#60A5FA' }}
               name="Height"
             />
             <Line
               type="monotone"
               dataKey="spin"
-              stroke="#F59E0B"
+              stroke="#93C5FD"
+              strokeWidth={2}
+              dot={{ fill: '#93C5FD' }}
               name="Spin (x100)"
             />
           </LineChart>
@@ -86,27 +99,15 @@ export function AnalysisView({ shots }: AnalysisViewProps) {
 
       {/* Recommendations */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-        <h3 className="text-lg font-medium mb-3">Recommendations</h3>
-        <ul className="space-y-2">
+        <h3 className="text-lg font-medium mb-3 text-gray-700 dark:text-gray-200">Recommendations</h3>
+        <ul className="space-y-3">
           {analysis.recommendations.map((rec, index) => (
             <li
               key={index}
               className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300"
             >
-              <svg
-                className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              {rec}
+              <span className="text-blue-500 flex-shrink-0">{rec.slice(0, 2)}</span>
+              <span>{rec.slice(2)}</span>
             </li>
           ))}
         </ul>
@@ -114,17 +115,17 @@ export function AnalysisView({ shots }: AnalysisViewProps) {
 
       {/* Trends Summary */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-        <h3 className="text-lg font-medium mb-3">Trends</h3>
+        <h3 className="text-lg font-medium mb-3 text-gray-700 dark:text-gray-200">Trends</h3>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400">Distance Trend</p>
-            <p className={`text-lg font-medium ${trends.distanceTrend > 0 ? 'text-green-500' : 'text-red-500'}`}>
+            <p className={`text-lg font-medium ${trends.distanceTrend > 0 ? 'text-blue-500' : 'text-red-500'}`}>
               {trends.distanceTrend > 0 ? '↑' : '↓'} {Math.abs(trends.distanceTrend).toFixed(1)}y/shot
             </p>
           </div>
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400">Consistency Trend</p>
-            <p className={`text-lg font-medium ${trends.consistencyTrend > 0 ? 'text-green-500' : 'text-red-500'}`}>
+            <p className={`text-lg font-medium ${trends.consistencyTrend > 0 ? 'text-blue-500' : 'text-red-500'}`}>
               {trends.consistencyTrend > 0 ? '↑' : '↓'} {Math.abs(trends.consistencyTrend * 100).toFixed(1)}%/shot
             </p>
           </div>

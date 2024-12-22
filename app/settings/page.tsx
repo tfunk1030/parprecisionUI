@@ -62,8 +62,8 @@ export default function SettingsPage() {
           {/* Distance Unit */}
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
-                <Ruler className="w-4 h-4 text-emerald-400" />
+              <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+                <Ruler className="w-4 h-4 text-blue-400" />
               </div>
               <div className="text-sm text-gray-400">Distance Unit</div>
             </div>
@@ -72,7 +72,7 @@ export default function SettingsPage() {
                 onClick={() => updateSettings({ distanceUnit: 'yards' })}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   settings.distanceUnit === 'yards'
-                    ? 'bg-emerald-500 text-white'
+                    ? 'bg-blue-500 text-white'
                     : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                 }`}
               >
@@ -82,7 +82,7 @@ export default function SettingsPage() {
                 onClick={() => updateSettings({ distanceUnit: 'meters' })}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   settings.distanceUnit === 'meters'
-                    ? 'bg-emerald-500 text-white'
+                    ? 'bg-blue-500 text-white'
                     : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                 }`}
               >
@@ -94,8 +94,8 @@ export default function SettingsPage() {
           {/* Temperature Unit */}
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
-                <Thermometer className="w-4 h-4 text-emerald-400" />
+              <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+                <Thermometer className="w-4 h-4 text-blue-400" />
               </div>
               <div className="text-sm text-gray-400">Temperature Unit</div>
             </div>
@@ -104,7 +104,7 @@ export default function SettingsPage() {
                 onClick={() => updateSettings({ temperatureUnit: 'celsius' })}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   settings.temperatureUnit === 'celsius'
-                    ? 'bg-emerald-500 text-white'
+                    ? 'bg-blue-500 text-white'
                     : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                 }`}
               >
@@ -114,7 +114,7 @@ export default function SettingsPage() {
                 onClick={() => updateSettings({ temperatureUnit: 'fahrenheit' })}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   settings.temperatureUnit === 'fahrenheit'
-                    ? 'bg-emerald-500 text-white'
+                    ? 'bg-blue-500 text-white'
                     : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                 }`}
               >
@@ -126,8 +126,8 @@ export default function SettingsPage() {
           {/* Altitude Unit */}
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
-                <Mountain className="w-4 h-4 text-emerald-400" />
+              <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+                <Mountain className="w-4 h-4 text-blue-400" />
               </div>
               <div className="text-sm text-gray-400">Altitude Unit</div>
             </div>
@@ -136,7 +136,7 @@ export default function SettingsPage() {
                 onClick={() => updateSettings({ altitudeUnit: 'meters' })}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   settings.altitudeUnit === 'meters'
-                    ? 'bg-emerald-500 text-white'
+                    ? 'bg-blue-500 text-white'
                     : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                 }`}
               >
@@ -146,7 +146,7 @@ export default function SettingsPage() {
                 onClick={() => updateSettings({ altitudeUnit: 'feet' })}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   settings.altitudeUnit === 'feet'
-                    ? 'bg-emerald-500 text-white'
+                    ? 'bg-blue-500 text-white'
                     : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                 }`}
               >
@@ -197,7 +197,7 @@ export default function SettingsPage() {
           </div>
           <button
             onClick={() => handleSave(editingIndex)}
-            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-2 rounded-lg transition-colors"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 rounded-lg transition-colors"
           >
             {editingIndex !== null ? 'Update Club' : 'Add Club'}
           </button>

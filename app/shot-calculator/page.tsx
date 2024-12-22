@@ -130,8 +130,8 @@ export default function ShotCalculatorPage() {
           {/* Air Density */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
-                <Gauge className="w-4 h-4 text-emerald-400" />
+              <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+                <Gauge className="w-4 h-4 text-blue-400" />
               </div>
               <div>
                 <div className="text-sm">Air Density</div>
@@ -140,7 +140,7 @@ export default function ShotCalculatorPage() {
                 </div>
               </div>
             </div>
-            <div className={`${(adjustments?.densityEffect ?? 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+            <div className={`${(adjustments?.densityEffect ?? 0) >= 0 ? 'text-blue-400' : 'text-red-400'}`}>
               {formatAdjustment(adjustments?.densityEffect ?? 0)}
             </div>
           </div>
@@ -148,8 +148,8 @@ export default function ShotCalculatorPage() {
           {/* Altitude */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
-                <Mountain className="w-4 h-4 text-emerald-400" />
+              <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+                <Mountain className="w-4 h-4 text-blue-400" />
               </div>
               <div>
                 <div className="text-sm">Altitude</div>
@@ -158,7 +158,7 @@ export default function ShotCalculatorPage() {
                 </div>
               </div>
             </div>
-            <div className="text-emerald-400">
+            <div className="text-blue-400">
               {adjustments && formatAdjustment(adjustments.altitudeEffect)}
             </div>
           </div>
@@ -166,8 +166,8 @@ export default function ShotCalculatorPage() {
           {/* Temperature */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
-                <Thermometer className="w-4 h-4 text-emerald-400" />
+              <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+                <Thermometer className="w-4 h-4 text-blue-400" />
               </div>
               <div>
                 <div className="text-sm">Temperature</div>
@@ -176,7 +176,7 @@ export default function ShotCalculatorPage() {
                 </div>
               </div>
             </div>
-            <div className={`${(adjustments?.temperatureEffect ?? 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+            <div className={`${(adjustments?.temperatureEffect ?? 0) >= 0 ? 'text-blue-400' : 'text-red-400'}`}>
               {formatAdjustment(adjustments?.temperatureEffect ?? 0)}
             </div>
           </div>
@@ -184,8 +184,8 @@ export default function ShotCalculatorPage() {
           {/* Humidity */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
-                <Droplets className="w-4 h-4 text-emerald-400" />
+              <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+                <Droplets className="w-4 h-4 text-blue-400" />
               </div>
               <div>
                 <div className="text-sm">Humidity</div>
@@ -194,7 +194,7 @@ export default function ShotCalculatorPage() {
                 </div>
               </div>
             </div>
-            <div className={`${(adjustments?.humidityEffect ?? 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+            <div className={`${(adjustments?.humidityEffect ?? 0) >= 0 ? 'text-blue-400' : 'text-red-400'}`}>
               {formatAdjustment(adjustments?.humidityEffect ?? 0)}
             </div>
           </div>
@@ -204,7 +204,7 @@ export default function ShotCalculatorPage() {
           {/* Total Adjustment */}
           <div className="flex items-center justify-between font-medium">
             <div>Total Adjustment</div>
-            <div className={`${(adjustments?.totalEffect ?? 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+            <div className={`${(adjustments?.totalEffect ?? 0) >= 0 ? 'text-blue-400' : 'text-red-400'}`}>
               {formatAdjustment(adjustments?.totalEffect ?? 0)}
             </div>
           </div>
@@ -225,8 +225,8 @@ export default function ShotCalculatorPage() {
           <h2 className="text-lg font-semibold mb-4">Recommended Club</h2>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center">
-                <Target className="w-6 h-6 text-emerald-400" />
+              <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center">
+                <Target className="w-6 h-6 text-blue-400" />
               </div>
               <div>
                 <div className="text-xl font-medium">{recommendedClub.name}</div>
@@ -243,11 +243,11 @@ export default function ShotCalculatorPage() {
       {!isPremium && (
         <div className="bg-gray-800 rounded-xl p-6 relative overflow-hidden">
           <div className="absolute top-3 right-3">
-            <Lock className="w-5 h-5 text-emerald-400" />
+            <Lock className="w-5 h-5 text-blue-400" />
           </div>
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-emerald-500/20 rounded-full flex items-center justify-center">
-              <Wind className="w-5 h-5 text-emerald-400" />
+            <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+              <Wind className="w-5 h-5 text-blue-400" />
             </div>
             <div>
               <h3 className="font-medium">Wind Analysis</h3>
@@ -258,7 +258,7 @@ export default function ShotCalculatorPage() {
           </div>
           <button
             onClick={() => setShowUpgradeModal(true)}
-            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-2 rounded-lg transition-colors"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 rounded-lg transition-colors"
           >
             Upgrade to Premium
           </button>

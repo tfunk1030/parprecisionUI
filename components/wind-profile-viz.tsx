@@ -98,13 +98,13 @@ const WindProfileVisualizer = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-3 bg-gray-700/50 rounded-lg">
                     <div className="text-sm text-gray-400 mb-1">Carry Effect</div>
-                    <div className="text-xl font-semibold text-emerald-400">
+                    <div className="text-xl font-semibold text-blue-400">
                       {calculateCarryEffect(windLayers)}%
                     </div>
                   </div>
                   <div className="p-3 bg-gray-700/50 rounded-lg">
                     <div className="text-sm text-gray-400 mb-1">Lateral Drift</div>
-                    <div className="text-xl font-semibold text-emerald-400">
+                    <div className="text-xl font-semibold text-blue-400">
                       {calculateLateralDrift(windLayers)} yards
                     </div>
                   </div>
@@ -116,7 +116,7 @@ const WindProfileVisualizer = () => {
                     {windLayers.map((layer, index) => (
                       <div key={index} className="flex justify-between text-sm">
                         <span className="text-gray-400">{layer.altitude}ft:</span>
-                        <span className="text-emerald-400">
+                        <span className="text-blue-400">
                           {calculateLayerImpact(layer)}% effect
                         </span>
                       </div>
@@ -131,13 +131,13 @@ const WindProfileVisualizer = () => {
               <div className="space-y-3">
                 <div className="p-3 bg-gray-700/50 rounded-lg">
                   <div className="text-sm text-gray-400 mb-1">Club Selection</div>
-                  <div className="text-lg font-semibold text-emerald-400">
+                  <div className="text-lg font-semibold text-blue-400">
                     {getClubRecommendation(windLayers)}
                   </div>
                 </div>
                 <div className="p-3 bg-gray-700/50 rounded-lg">
                   <div className="text-sm text-gray-400 mb-1">Aim Adjustment</div>
-                  <div className="text-lg font-semibold text-emerald-400">
+                  <div className="text-lg font-semibold text-blue-400">
                     {getAimAdjustment(windLayers)}
                   </div>
                 </div>

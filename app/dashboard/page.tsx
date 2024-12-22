@@ -24,7 +24,7 @@ function DashboardContent() {
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <button 
             onClick={handleReset}
-            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-sm"
+            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-sm"
           >
             Reset Widgets
           </button>

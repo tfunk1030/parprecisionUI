@@ -62,7 +62,7 @@ export default function Navigation() {
         }`}
       >
         <div className="flex justify-between items-center mb-8">
-          <div className="text-2xl font-bold text-emerald-400">LastShot</div>
+          <div className="text-2xl font-bold text-blue-400">LastShot</div>
           <button 
             onClick={() => setIsMenuOpen(false)}
             className="p-1 hover:bg-gray-800 rounded-lg"
@@ -82,7 +82,7 @@ export default function Navigation() {
                   href={route.path}
                   className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
                     pathname === route.path 
-                      ? 'bg-gray-800 text-emerald-400' 
+                      ? 'bg-gray-800 text-blue-400' 
                       : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
@@ -104,7 +104,7 @@ export default function Navigation() {
                   href={isPremium ? route.path : '#'}
                   className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
                     pathname === route.path 
-                      ? 'bg-gray-800 text-emerald-400' 
+                      ? 'bg-gray-800 text-blue-400' 
                       : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                   }`}
                   onClick={(e) => {
@@ -138,7 +138,7 @@ export default function Navigation() {
           <Link
             href="/"
             className={`flex flex-col items-center px-3 py-2 rounded-lg ${
-              pathname === '/' ? 'text-emerald-400' : 'text-gray-400'
+              pathname === '/' ? 'text-blue-400' : 'text-gray-400'
             }`}
           >
             <Cloud className="w-6 h-6" />
@@ -148,7 +148,7 @@ export default function Navigation() {
           <Link
             href="/shot-calculator"
             className={`flex flex-col items-center px-3 py-2 rounded-lg ${
-              pathname === '/shot-calculator' ? 'text-emerald-400' : 'text-gray-400'
+              pathname === '/shot-calculator' ? 'text-blue-400' : 'text-gray-400'
             }`}
           >
             <Target className="w-6 h-6" />
@@ -158,7 +158,7 @@ export default function Navigation() {
           <Link
             href="/settings"
             className={`flex flex-col items-center px-3 py-2 rounded-lg ${
-              pathname === '/settings' ? 'text-emerald-400' : 'text-gray-400'
+              pathname === '/settings' ? 'text-blue-400' : 'text-gray-400'
             }`}
           >
             <Settings className="w-6 h-6" />

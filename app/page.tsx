@@ -37,8 +37,8 @@ export default function WeatherPage() {
       {/* Main Weather Card */}
       <div className="bg-gray-800 rounded-xl p-6 mb-4">
         <div className="flex items-center justify-between">
-          <div className="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center">
-            <Thermometer className="w-6 h-6 text-emerald-400" />
+          <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center">
+            <Thermometer className="w-6 h-6 text-blue-400" />
           </div>
           <div className="text-center flex-1">
             <div className="text-4xl font-bold">
@@ -57,8 +57,8 @@ export default function WeatherPage() {
         {/* Humidity */}
         <div className="bg-gray-800 rounded-xl p-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
-              <Droplets className="w-4 h-4 text-emerald-400" />
+            <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+              <Droplets className="w-4 h-4 text-blue-400" />
             </div>
             <div className="text-sm text-gray-400">Humidity</div>
           </div>
@@ -70,8 +70,8 @@ export default function WeatherPage() {
         {/* Altitude */}
         <div className="bg-gray-800 rounded-xl p-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
-              <Mountain className="w-4 h-4 text-emerald-400" />
+            <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+              <Mountain className="w-4 h-4 text-blue-400" />
             </div>
             <div className="text-sm text-gray-400">Altitude</div>
           </div>
@@ -83,8 +83,8 @@ export default function WeatherPage() {
         {/* Pressure */}
         <div className="bg-gray-800 rounded-xl p-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
-              <Gauge className="w-4 h-4 text-emerald-400" />
+            <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+              <Gauge className="w-4 h-4 text-blue-400" />
             </div>
             <div className="text-sm text-gray-400">Pressure</div>
           </div>
@@ -96,8 +96,8 @@ export default function WeatherPage() {
         {/* Air Density */}
         <div className="bg-gray-800 rounded-xl p-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
-              <Wind className="w-4 h-4 text-emerald-400" />
+            <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+              <Wind className="w-4 h-4 text-blue-400" />
             </div>
             <div className="text-sm text-gray-400">Air Density</div>
           </div>

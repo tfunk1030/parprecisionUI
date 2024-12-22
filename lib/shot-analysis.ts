@@ -137,15 +137,19 @@ export class ShotAnalyzer {
     const recommendations: string[] = [];
 
     if (consistency < this.CONSISTENCY_THRESHOLD) {
-      recommendations.push('Work on maintaining consistent swing mechanics');
+      recommendations.push('💫 Work on maintaining consistent swing mechanics');
     }
 
     if (dispersion > this.DISPERSION_THRESHOLD) {
-      recommendations.push('Focus on improving shot accuracy and reducing spread');
+      recommendations.push('🎯 Focus on improving shot accuracy and reducing spread');
     }
 
     if (efficiency < this.EFFICIENCY_THRESHOLD) {
-      recommendations.push('Optimize launch conditions for better performance');
+      recommendations.push('⚡ Optimize launch conditions for better performance');
+    }
+
+    if (recommendations.length === 0) {
+      recommendations.push('✨ Great job! Keep up the excellent performance');
     }
 
     return recommendations;

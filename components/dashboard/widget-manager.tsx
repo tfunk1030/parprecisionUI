@@ -55,7 +55,7 @@ export function WidgetManager() {
   return (
     <div className="fixed bottom-20 right-4 z-50">
       <button
-        className="w-12 h-12 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg"
+        className="w-12 h-12 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg"
         aria-label="Add Widget"
         onClick={() => setIsOpen(!isOpen)}
       >

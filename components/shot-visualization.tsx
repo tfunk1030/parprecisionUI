@@ -199,27 +199,23 @@ export default function ShotVisualization({
     const arrowLength = radius - 5
 
     ctx.beginPath()
-    ctx.moveTo(
-      x + Math.cos(angle) * 5,
-      y + Math.sin(angle) * 5
-    )
+    ctx.moveTo(x, y)
     ctx.lineTo(
       x + Math.cos(angle) * arrowLength,
       y + Math.sin(angle) * arrowLength
     )
-    
-    ctx.strokeStyle = '#10B981'
+    ctx.strokeStyle = '#3B82F6'
     ctx.lineWidth = 2
     ctx.stroke()
 
-    // Add wind speed text
-    ctx.fillStyle = '#D1D5DB'
+    // Draw wind speed text
+    ctx.fillStyle = '#60A5FA'
     ctx.font = '12px Inter'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText(`${Math.round(windSpeed)}`, x, y)
+    ctx.fillStyle = '#93C5FD'
     ctx.font = '10px Inter'
-    ctx.fillStyle = '#9CA3AF'
     ctx.fillText('MPH', x, y + 14)
   }
 
@@ -233,7 +229,7 @@ export default function ShotVisualization({
     yardToPixelY: number
   ) => {
     ctx.beginPath()
-    ctx.strokeStyle = '#10B981'
+    ctx.strokeStyle = '#3B82F6'
     ctx.lineWidth = 2
 
     // Start from origin
@@ -284,8 +280,18 @@ export default function ShotVisualization({
     // Draw landing zone
     ctx.beginPath()
     ctx.arc(lastX, lastY, 5, 0, 2 * Math.PI)
-    ctx.fillStyle = '#10B981'
+    ctx.fillStyle = '#60A5FA'
     ctx.fill()
+    ctx.strokeStyle = '#93C5FD'
+    ctx.lineWidth = 1
+    ctx.stroke()
+  }
+
+  const getWindSpeedColor = (speed: number) => {
+    if (speed < 5) return 'text-blue-300'
+    if (speed < 10) return 'text-blue-400'
+    if (speed < 15) return 'text-blue-500'
+    return 'text-blue-600'
   }
 
   return (
@@ -293,13 +299,13 @@ export default function ShotVisualization({
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-gray-800 rounded-xl p-3 shadow-lg">
           <div className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Distance</div>
-          <div className="text-lg font-bold text-emerald-400">
+          <div className="text-lg font-bold text-blue-400">
             {Math.round(params.distance)}<span className="text-xs ml-1">yds</span>
           </div>
         </div>
         <div className="bg-gray-800 rounded-xl p-3 shadow-lg">
           <div className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Wind</div>
-          <div className="text-lg font-bold text-emerald-400">
+          <div className="text-lg font-bold text-blue-400">
             {Math.round(params.windSpeed)}<span className="text-xs ml-1">mph</span>
           </div>
         </div>
@@ -317,13 +323,13 @@ export default function ShotVisualization({
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-gray-800 rounded-xl p-3 shadow-lg">
           <div className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Direction</div>
-          <div className="text-lg font-bold text-emerald-400">
+          <div className="text-lg font-bold text-blue-400">
             {Math.round(params.windDirection)}<span className="text-xs ml-1">°</span>
           </div>
         </div>
         <div className="bg-gray-800 rounded-xl p-3 shadow-lg">
           <div className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Offset</div>
-          <div className="text-lg font-bold text-emerald-400">
+          <div className="text-lg font-bold text-blue-400">
             {calculateLateralOffset(params.distance, params.windSpeed, params.windDirection) > 0 ? 'R' : 'L'} {Math.abs(Math.round(calculateLateralOffset(params.distance, params.windSpeed, params.windDirection)))}<span className="text-xs ml-1">yds</span>
           </div>
         </div>
