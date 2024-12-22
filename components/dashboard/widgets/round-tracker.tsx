@@ -4,20 +4,31 @@ import React, { useState } from 'react'
 import { useWidgetConfig } from '@/lib/widget-config-context'
 import { WIDGET_SIZES } from '@/lib/widget-sizes'
 import { Settings2 } from 'lucide-react'
-import { WidgetConfigModal } from '../widget-config-modal'
+import { WidgetConfigModal } from '@/components/dashboard/widget-config-modal'
+import { useWidgetSize } from '@/lib/use-widget-size'
+
+interface RoundData {
+  number: number
+  shots: any[]
+  score?: number
+  putts?: number
+  fairwaysHit?: number
+  greensInRegulation?: number
+  penalties?: number
+}
 
 // Mock data - replace with actual round data hook
 const useRoundData = () => ({
   currentRound: {
     number: 1,
-    shots: []
-  }
+    shots: [],
+    score: 72,
+    putts: 30,
+    fairwaysHit: 10,
+    greensInRegulation: 12,
+    penalties: 2
+  } as RoundData
 })
-
-const useWidgetSize = () => {
-  // TO DO: implement widget size logic
-  return 'medium' // default size
-}
 
 export function RoundTrackerWidget() {
   const size = useWidgetSize()
@@ -35,17 +46,17 @@ export function RoundTrackerWidget() {
   const getVariableValue = (id: string) => {
     switch (id) {
       case 'score':
-        return currentRound.score
+        return currentRound.score ?? '--'
       case 'putts':
-        return currentRound.putts
+        return currentRound.putts ?? '--'
       case 'fir':
-        return `${currentRound.fairwaysHit}/14`
+        return currentRound.fairwaysHit ? `${currentRound.fairwaysHit}/14` : '--'
       case 'gir':
-        return `${currentRound.greensInRegulation}/18`
+        return currentRound.greensInRegulation ? `${currentRound.greensInRegulation}/18` : '--'
       case 'penalties':
-        return currentRound.penalties
+        return currentRound.penalties ?? '--'
       default:
-        return ''
+        return '--'
     }
   }
 
@@ -69,6 +80,7 @@ export function RoundTrackerWidget() {
 
       {showConfig && (
         <WidgetConfigModal
+          widgetId="round-tracker"
           onClose={() => setShowConfig(false)}
         />
       )}

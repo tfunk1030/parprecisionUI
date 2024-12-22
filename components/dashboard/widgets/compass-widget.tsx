@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react'
 import { Settings2, Compass } from 'lucide-react'
-import { WidgetConfigModal } from '../widget-config-modal'
+import { WidgetConfigModal } from '@/components/dashboard/widget-config-modal'
 import { useWidgetSize } from '@/lib/use-widget-size'
+import { useWidgetConfig } from '@/lib/widget-config-context'
 
 function getCardinalDirection(degrees: number) {
   const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
@@ -135,62 +136,55 @@ const LargeLayout = ({ bearing }: { bearing: number }) => (
 
 export function CompassWidget() {
   const size = useWidgetSize()
+  const { getConfig } = useWidgetConfig()
   const [showConfig, setShowConfig] = useState(false)
   const [bearing, setBearing] = useState(0)
   const [hasPermission, setHasPermission] = useState<boolean | null>(null)
 
   useEffect(() => {
-    if (!('DeviceOrientationEvent' in window)) {
-      setHasPermission(false)
-      return
-    }
-    // Request permission for orientation
+    // Request device orientation permission
     if (typeof DeviceOrientationEvent !== 'undefined' && 
-        // @ts-ignore - Typescript doesn't know about requestPermission
-        typeof DeviceOrientationEvent.requestPermission === 'function') {
-      // iOS 13+ requires permission
-      // @ts-ignore
-      DeviceOrientationEvent.requestPermission()
-        .then((response: string) => {
-          setHasPermission(response === 'granted')
-          if (response === 'granted') {
-            startCompass()
-          }
+        typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+      (DeviceOrientationEvent as any).requestPermission()
+        .then((permissionState: string) => {
+          setHasPermission(permissionState === 'granted')
         })
-        .catch(() => setHasPermission(false))
+        .catch(() => {
+          setHasPermission(false)
+        })
     } else {
-      // Non-iOS devices or older iOS versions
       setHasPermission(true)
-      startCompass()
-    }
-
-    return () => {
-      window.removeEventListener('deviceorientationabsolute', handleOrientation)
-      window.removeEventListener('deviceorientation', handleOrientation)
     }
   }, [])
 
-  function handleOrientation(event: DeviceOrientationEvent) {
-    if (event.webkitCompassHeading) {
-      // iOS devices
-      setBearing(event.webkitCompassHeading)
-    } else if (event.alpha) {
-      // Android devices
-      setBearing(360 - event.alpha)
-    }
-  }
+  useEffect(() => {
+    if (!hasPermission) return
 
-  function startCompass() {
-    window.addEventListener('deviceorientationabsolute', handleOrientation)
+    const handleOrientation = (event: DeviceOrientationEvent) => {
+      if (event.webkitCompassHeading) {
+        // iOS devices
+        setBearing(event.webkitCompassHeading)
+      } else if (event.alpha) {
+        // Android devices
+        setBearing(360 - event.alpha)
+      }
+    }
+
     window.addEventListener('deviceorientation', handleOrientation)
-  }
+    return () => {
+      window.removeEventListener('deviceorientation', handleOrientation)
+    }
+  }, [hasPermission])
+
+  const config = getConfig('compass')
+  if (!config) return null
 
   const LayoutComponent = {
     small: SmallLayout,
     wide: WideLayout,
     tall: TallLayout,
     large: LargeLayout
-  }[size]
+  }[size] || SmallLayout
 
   return (
     <div className="h-full flex flex-col">
@@ -210,6 +204,7 @@ export function CompassWidget() {
 
       {showConfig && (
         <WidgetConfigModal
+          widgetId="compass"
           onClose={() => setShowConfig(false)}
         />
       )}

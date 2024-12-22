@@ -116,8 +116,8 @@ export default function ShotCalculatorPage() {
                 </div>
               </div>
             </div>
-            <div className={adjustments?.densityEffect >= 0 ? 'text-emerald-400' : 'text-red-400'}>
-              {adjustments && formatAdjustment(adjustments.densityEffect)}
+            <div className={`${(adjustments?.densityEffect ?? 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+              {formatAdjustment(adjustments?.densityEffect ?? 0)}
             </div>
           </div>
 
@@ -152,8 +152,8 @@ export default function ShotCalculatorPage() {
                 </div>
               </div>
             </div>
-            <div className={adjustments?.temperatureEffect >= 0 ? 'text-emerald-400' : 'text-red-400'}>
-              {adjustments && formatAdjustment(adjustments.temperatureEffect)}
+            <div className={`${(adjustments?.temperatureEffect ?? 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+              {formatAdjustment(adjustments?.temperatureEffect ?? 0)}
             </div>
           </div>
 
@@ -170,8 +170,8 @@ export default function ShotCalculatorPage() {
                 </div>
               </div>
             </div>
-            <div className={adjustments?.humidityEffect >= 0 ? 'text-emerald-400' : 'text-red-400'}>
-              {adjustments && formatAdjustment(adjustments.humidityEffect)}
+            <div className={`${(adjustments?.humidityEffect ?? 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+              {formatAdjustment(adjustments?.humidityEffect ?? 0)}
             </div>
           </div>
 
@@ -180,8 +180,8 @@ export default function ShotCalculatorPage() {
           {/* Total Adjustment */}
           <div className="flex items-center justify-between font-medium">
             <div>Total Adjustment</div>
-            <div className={adjustments?.totalEffect >= 0 ? 'text-emerald-400' : 'text-red-400'}>
-              {adjustments && formatAdjustment(adjustments.totalEffect)}
+            <div className={`${(adjustments?.totalEffect ?? 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+              {formatAdjustment(adjustments?.totalEffect ?? 0)}
             </div>
           </div>
 

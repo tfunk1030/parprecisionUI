@@ -7,7 +7,7 @@ import { useWidgetConfig } from '@/lib/widget-config-context'
 import { useWidgetSize } from '@/lib/use-widget-size'
 import { WIDGET_SIZES } from '@/lib/widget-sizes'
 import { Settings2, Thermometer, Droplets, Mountain, Gauge } from 'lucide-react'
-import { WidgetConfigModal } from '../widget-config-modal'
+import { WidgetConfigModal } from '@/components/dashboard/widget-config-modal'
 
 interface ConditionCardProps {
   id: string
@@ -199,6 +199,7 @@ export function EnvironmentalConditionsWidget() {
 
       {showConfig && (
         <WidgetConfigModal
+          widgetId="environmental"
           onClose={() => setShowConfig(false)}
         />
       )}

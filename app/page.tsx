@@ -22,7 +22,7 @@ export default function WeatherPage() {
     setIsClient(true)
   }, [])
 
-  if (!isClient) {
+  if (!isClient || !conditions) {
     return (
       <div className="p-4 max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Loading conditions...</h1>
@@ -42,10 +42,10 @@ export default function WeatherPage() {
           </div>
           <div className="text-center flex-1">
             <div className="text-4xl font-bold">
-              {formatTemperature(conditions.temperature)}
+              {formatTemperature(conditions?.temperature ?? 0)}
             </div>
             <div className="text-gray-400 text-sm">
-              Feels like {formatTemperature(conditions.temperature + 2)}
+              Feels like {formatTemperature((conditions?.temperature ?? 0) + 2)}
             </div>
           </div>
           <div className="w-12"></div> {/* Spacer for centering */}
@@ -63,7 +63,7 @@ export default function WeatherPage() {
             <div className="text-sm text-gray-400">Humidity</div>
           </div>
           <div className="mt-2 ml-11 text-lg font-medium">
-            {conditions.humidity.toFixed(0)}%
+            {conditions?.humidity?.toFixed(0)}%
           </div>
         </div>
 
@@ -76,7 +76,7 @@ export default function WeatherPage() {
             <div className="text-sm text-gray-400">Altitude</div>
           </div>
           <div className="mt-2 ml-11 text-lg font-medium">
-            {formatAltitude(conditions.altitude)}
+            {formatAltitude(conditions?.altitude ?? 0)}
           </div>
         </div>
 
@@ -89,7 +89,7 @@ export default function WeatherPage() {
             <div className="text-sm text-gray-400">Pressure</div>
           </div>
           <div className="mt-2 ml-11 text-lg font-medium">
-            {conditions.pressure.toFixed(0)} hPa
+            {conditions?.pressure?.toFixed(0)} hPa
           </div>
         </div>
 
@@ -101,15 +101,8 @@ export default function WeatherPage() {
             </div>
             <div className="text-sm text-gray-400">Air Density</div>
           </div>
-          <div className="mt-2 ml-11">
-            <div className="text-lg font-medium">
-              {conditions.density.toFixed(3)} kg/m³
-            </div>
-            <div className="text-sm text-gray-400 mt-1">
-              {conditions.density > 1.225 
-                ? 'Denser air will reduce shot distance'
-                : 'Thinner air will increase shot distance'}
-            </div>
+          <div className="mt-2 ml-11 text-lg font-medium">
+            {conditions?.density?.toFixed(3)} kg/m³
           </div>
         </div>
       </div>
