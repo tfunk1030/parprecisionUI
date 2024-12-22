@@ -19,7 +19,7 @@ interface FlightStats {
 
 const PADDING = 40
 
-export default function BallFlightVisualizer() {
+export default function BallFlightVisualizer(): JSX.Element {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [selectedClub, setSelectedClub] = useState(clubData[0])
   const [view3D, setView3D] = useState(false)
