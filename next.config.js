@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   env: {
-    PORT: "3000"
+    PORT: '3000'
   }
 }
 

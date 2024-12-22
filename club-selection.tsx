@@ -14,7 +14,7 @@ interface Club {
 }
 
 export default function ClubSelection() {
-  const [clubs, setClubs] = useState<Club[]>([]);
+  const [clubs, setClubs] = useState<readonly Club[]>([]);
   const [selectedClub, setSelectedClub] = useState<Club | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [newClub, setNewClub] = useState<Club>({
@@ -28,7 +28,7 @@ export default function ClubSelection() {
 
   // Initialize with some default clubs
   useEffect(() => {
-    const defaultClubs: Club[] = [
+    const defaultClubs: readonly Club[] = [
       { name: 'Driver', distance: 260, loft: 10.5, ballSpeed: 167, launchAngle: 14.2, spinRate: 2800 },
       { name: '3 Wood', distance: 235, loft: 15, ballSpeed: 158, launchAngle: 13.5, spinRate: 3400 },
       { name: '5 Iron', distance: 185, loft: 27, ballSpeed: 138, launchAngle: 17.8, spinRate: 5200 },
