@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useCallback } from 'react'
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
 
 interface Widget {
   id: string
@@ -34,25 +34,19 @@ const DEFAULT_LAYOUT: Layout = {
       id: 'wind-1',
       type: 'wind',
       position: { x: 0, y: 0 },
-      size: { width: 2, height: 2 }
+      size: { width: 4, height: 3 }
     },
     {
       id: 'env-1',
       type: 'environmental',
-      position: { x: 2, y: 0 },
-      size: { width: 2, height: 2 }
-    },
-    {
-      id: 'shot-analysis-1',
-      type: 'shot-analysis',
-      position: { x: 0, y: 2 },
-      size: { width: 4, height: 3 }
+      position: { x: 4, y: 0 },
+      size: { width: 6, height: 4 }
     },
     {
       id: 'round-1',
       type: 'round-tracker',
-      position: { x: 0, y: 5 },
-      size: { width: 4, height: 2 }
+      position: { x: 0, y: 3 },
+      size: { width: 12, height: 6 }
     }
   ]
 }

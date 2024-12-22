@@ -12,22 +12,24 @@ interface ClubData {
   spinRate: number;
 }
 
+const defaultClubs: ClubData[] = [
+  { name: 'Driver', distance: 260, loft: 10.5, ballSpeed: 167, launchAngle: 14.2, spinRate: 2800 },
+  { name: '3 Wood', distance: 235, loft: 15, ballSpeed: 158, launchAngle: 13.5, spinRate: 3400 },
+  { name: '5 Iron', distance: 185, loft: 27, ballSpeed: 138, launchAngle: 17.8, spinRate: 5200 },
+  { name: '6 Iron', distance: 175, loft: 30, ballSpeed: 134, launchAngle: 18.5, spinRate: 5600 },
+  { name: '7 Iron', distance: 165, loft: 34, ballSpeed: 130, launchAngle: 19.2, spinRate: 6000 },
+  { name: '8 Iron', distance: 155, loft: 38, ballSpeed: 126, launchAngle: 20.1, spinRate: 6400 },
+  { name: '9 Iron', distance: 145, loft: 42, ballSpeed: 122, launchAngle: 21.0, spinRate: 6800 },
+  { name: 'PW', distance: 135, loft: 46, ballSpeed: 118, launchAngle: 22.0, spinRate: 7200 },
+  { name: 'GW', distance: 125, loft: 50, ballSpeed: 114, launchAngle: 23.0, spinRate: 7600 },
+  { name: 'SW', distance: 115, loft: 56, ballSpeed: 110, launchAngle: 24.0, spinRate: 8000 }
+];
+
 const ClubSelection: React.FC = () => {
   const [selectedClub, setSelectedClub] = useState<ClubData | null>(null);
-  const [clubs] = useState<ClubData[]>([
-    { name: 'Driver', distance: 260, loft: 10.5, ballSpeed: 167, launchAngle: 14.2, spinRate: 2800 },
-    { name: '3 Wood', distance: 235, loft: 15, ballSpeed: 158, launchAngle: 13.5, spinRate: 3400 },
-    { name: '5 Iron', distance: 185, loft: 27, ballSpeed: 138, launchAngle: 17.8, spinRate: 5200 },
-    { name: '6 Iron', distance: 175, loft: 30, ballSpeed: 134, launchAngle: 18.5, spinRate: 5600 },
-    { name: '7 Iron', distance: 165, loft: 34, ballSpeed: 130, launchAngle: 19.2, spinRate: 6000 },
-    { name: '8 Iron', distance: 155, loft: 38, ballSpeed: 126, launchAngle: 20.1, spinRate: 6400 },
-    { name: '9 Iron', distance: 145, loft: 42, ballSpeed: 122, launchAngle: 21.0, spinRate: 6800 },
-    { name: 'PW', distance: 135, loft: 46, ballSpeed: 118, launchAngle: 22.0, spinRate: 7200 },
-    { name: 'GW', distance: 125, loft: 50, ballSpeed: 114, launchAngle: 23.0, spinRate: 7600 },
-    { name: 'SW', distance: 115, loft: 56, ballSpeed: 110, launchAngle: 24.0, spinRate: 8000 }
-  ]);
+  const [clubs, setClubs] = useState<ClubData[]>(defaultClubs);
 
-  const handleClubSelect = (club: ClubData) => {
+  const handleClubSelect = (club: ClubData): void => {
     setSelectedClub(club);
   };
 

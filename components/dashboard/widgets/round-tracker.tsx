@@ -2,21 +2,25 @@
 
 import React, { useState } from 'react'
 import { useWidgetConfig } from '@/lib/widget-config-context'
+import { WIDGET_SIZES } from '@/lib/widget-sizes'
 import { Settings2 } from 'lucide-react'
 import { WidgetConfigModal } from '../widget-config-modal'
 
 // Mock data - replace with actual round data hook
 const useRoundData = () => ({
   currentRound: {
-    score: 75,
-    putts: 32,
-    fairwaysHit: 9,
-    greensInRegulation: 12,
-    penalties: 2,
+    number: 1,
+    shots: []
   }
 })
 
+const useWidgetSize = () => {
+  // TO DO: implement widget size logic
+  return 'medium' // default size
+}
+
 export function RoundTrackerWidget() {
+  const size = useWidgetSize()
   const { currentRound } = useRoundData()
   const { getConfig } = useWidgetConfig()
   const [showConfig, setShowConfig] = useState(false)
@@ -65,7 +69,6 @@ export function RoundTrackerWidget() {
 
       {showConfig && (
         <WidgetConfigModal
-          widgetId="round-tracker"
           onClose={() => setShowConfig(false)}
         />
       )}

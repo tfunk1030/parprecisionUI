@@ -11,7 +11,8 @@ interface PremiumContextType {
 const PremiumContext = createContext<PremiumContextType | undefined>(undefined)
 
 export function PremiumProvider({ children }: { children: React.ReactNode }) {
-  const [isPremium, setIsPremium] = useState(false)
+  // Temporarily set to true for development
+  const [isPremium, setIsPremium] = useState(true)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
   return (

@@ -15,14 +15,6 @@ import {
   Lock
 } from 'lucide-react'
 
-function convertAltitude(value: number, targetUnit: 'feet' | 'meters'): number {
-  if (targetUnit === 'meters') {
-    return value * 0.3048 // Convert feet to meters
-  } else {
-    return value / 0.3048 // Convert meters to feet
-  }
-}
-
 export default function ShotCalculatorPage() {
   const { conditions } = useEnvironmental()
   const { getRecommendedClub, clubs } = useClubSettings()
@@ -30,24 +22,10 @@ export default function ShotCalculatorPage() {
   const { settings, convertDistance, formatDistance, formatTemperature, formatAltitude, convertAltitude } = useSettings()
   const [targetYardage, setTargetYardage] = useState(150)
 
-  if (!conditions) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-white p-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-800 rounded w-1/4 mb-4"></div>
-          <div className="h-64 bg-gray-800 rounded mb-4"></div>
-          <div className="h-8 bg-gray-800 rounded w-1/2"></div>
-        </div>
-      </div>
-    )
-  }
-
-  const recommendedClub = useMemo(() => 
-    getRecommendedClub(targetYardage), [targetYardage, clubs]
-  )
-
   // Calculate adjustments based on environmental conditions
   const adjustments = useMemo(() => {
+    if (!conditions) return null;
+
     // Convert altitude to meters for calculations if needed
     const altitudeInMeters = settings.altitudeUnit === 'feet' 
       ? convertAltitude(conditions.altitude, 'meters')
@@ -70,6 +48,23 @@ export default function ShotCalculatorPage() {
       adjustedYardage
     }
   }, [conditions, targetYardage, settings.altitudeUnit, convertAltitude])
+
+  const recommendedClub = useMemo(() => 
+    adjustments ? getRecommendedClub(adjustments.adjustedYardage) : null, 
+    [adjustments, getRecommendedClub]
+  )
+
+  if (!conditions) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white p-8">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-800 rounded w-1/4 mb-4"></div>
+          <div className="h-64 bg-gray-800 rounded mb-4"></div>
+          <div className="h-8 bg-gray-800 rounded w-1/2"></div>
+        </div>
+      </div>
+    )
+  }
 
   const formatAdjustment = (yards: number) => {
     const value = settings.distanceUnit === 'meters' 
@@ -121,8 +116,8 @@ export default function ShotCalculatorPage() {
                 </div>
               </div>
             </div>
-            <div className={adjustments.densityEffect >= 0 ? 'text-emerald-400' : 'text-red-400'}>
-              {formatAdjustment(adjustments.densityEffect)}
+            <div className={adjustments?.densityEffect >= 0 ? 'text-emerald-400' : 'text-red-400'}>
+              {adjustments && formatAdjustment(adjustments.densityEffect)}
             </div>
           </div>
 
@@ -140,7 +135,7 @@ export default function ShotCalculatorPage() {
               </div>
             </div>
             <div className="text-emerald-400">
-              {formatAdjustment(adjustments.altitudeEffect)}
+              {adjustments && formatAdjustment(adjustments.altitudeEffect)}
             </div>
           </div>
 
@@ -157,8 +152,8 @@ export default function ShotCalculatorPage() {
                 </div>
               </div>
             </div>
-            <div className={adjustments.temperatureEffect >= 0 ? 'text-emerald-400' : 'text-red-400'}>
-              {formatAdjustment(adjustments.temperatureEffect)}
+            <div className={adjustments?.temperatureEffect >= 0 ? 'text-emerald-400' : 'text-red-400'}>
+              {adjustments && formatAdjustment(adjustments.temperatureEffect)}
             </div>
           </div>
 
@@ -175,8 +170,8 @@ export default function ShotCalculatorPage() {
                 </div>
               </div>
             </div>
-            <div className={adjustments.humidityEffect >= 0 ? 'text-emerald-400' : 'text-red-400'}>
-              {formatAdjustment(adjustments.humidityEffect)}
+            <div className={adjustments?.humidityEffect >= 0 ? 'text-emerald-400' : 'text-red-400'}>
+              {adjustments && formatAdjustment(adjustments.humidityEffect)}
             </div>
           </div>
 
@@ -185,8 +180,8 @@ export default function ShotCalculatorPage() {
           {/* Total Adjustment */}
           <div className="flex items-center justify-between font-medium">
             <div>Total Adjustment</div>
-            <div className={adjustments.totalEffect >= 0 ? 'text-emerald-400' : 'text-red-400'}>
-              {formatAdjustment(adjustments.totalEffect)}
+            <div className={adjustments?.totalEffect >= 0 ? 'text-emerald-400' : 'text-red-400'}>
+              {adjustments && formatAdjustment(adjustments.totalEffect)}
             </div>
           </div>
 
@@ -194,7 +189,7 @@ export default function ShotCalculatorPage() {
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-400">Playing Distance</div>
             <div className="text-lg font-bold">
-              {formatDistance(adjustments.adjustedYardage)}
+              {adjustments && formatDistance(adjustments.adjustedYardage)}
             </div>
           </div>
         </div>

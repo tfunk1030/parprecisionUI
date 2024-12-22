@@ -2,18 +2,24 @@
 
 import React from 'react'
 import { useWidgetConfig, type WidgetConfig, type WidgetVariable } from '@/lib/widget-config-context'
+import { useDashboard } from '@/lib/dashboard-context'
+import { WIDGET_SIZES, type WidgetSize } from '@/lib/widget-sizes'
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { GripVertical, X } from 'lucide-react'
+import { GripVertical, X, Maximize2, ArrowLeftRight, ArrowUpDown, Square } from 'lucide-react'
 
 interface WidgetConfigModalProps {
   widgetId: string
   onClose: () => void
 }
 
-function SortableItem({ variable }: { variable: WidgetVariable }) {
+interface SortableItemProps {
+  variable: WidgetVariable
+}
+
+function SortableItem({ variable }: SortableItemProps) {
   const {
     attributes,
     listeners,
@@ -55,7 +61,9 @@ function SortableItem({ variable }: { variable: WidgetVariable }) {
 
 export function WidgetConfigModal({ widgetId, onClose }: WidgetConfigModalProps) {
   const { getConfig, updateConfig } = useWidgetConfig()
+  const { activeLayout, updateWidget } = useDashboard()
   const config = getConfig(widgetId)
+  const widget = activeLayout?.widgets.find(w => w.id === widgetId)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -64,7 +72,7 @@ export function WidgetConfigModal({ widgetId, onClose }: WidgetConfigModalProps)
     })
   )
 
-  if (!config) return null
+  if (!config || !widget || !activeLayout) return null
 
   const handleToggleVariable = (variableId: string) => {
     const newConfig: WidgetConfig = {
@@ -93,49 +101,109 @@ export function WidgetConfigModal({ widgetId, onClose }: WidgetConfigModalProps)
     }
   }
 
+  const handleSizeChange = (size: WidgetSize) => {
+    const newSize = WIDGET_SIZES[size]
+    updateWidget(activeLayout.id, widgetId, {
+      position: widget.position,
+      size: newSize
+    })
+  }
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div 
+      className="absolute inset-0 bg-black/50 flex items-center justify-center z-50"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+    >
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-[90%] max-h-[90%] overflow-auto" onClick={e => e.stopPropagation()}>
         <div className="p-4 border-b dark:border-gray-700 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Widget Settings</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
-        
-        <div className="p-4">
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={config.variables.map(v => v.id)}
-              strategy={verticalListSortingStrategy}
+
+        <div className="p-4 space-y-4">
+          {/* Size Selection */}
+          <div>
+            <h3 className="text-sm font-medium mb-2">Widget Size</h3>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => handleSizeChange('small')}
+                className={`flex items-center gap-2 p-2 rounded-lg border ${
+                  widget.size.width === WIDGET_SIZES.small.width && widget.size.height === WIDGET_SIZES.small.height
+                    ? 'border-emerald-500 bg-emerald-500/10'
+                    : 'border-gray-700 hover:border-gray-600'
+                }`}
+              >
+                <Square className="w-4 h-4" />
+                <span>Small Square</span>
+              </button>
+              <button
+                onClick={() => handleSizeChange('wide')}
+                className={`flex items-center gap-2 p-2 rounded-lg border ${
+                  widget.size.width === WIDGET_SIZES.wide.width && widget.size.height === WIDGET_SIZES.wide.height
+                    ? 'border-emerald-500 bg-emerald-500/10'
+                    : 'border-gray-700 hover:border-gray-600'
+                }`}
+              >
+                <ArrowLeftRight className="w-4 h-4" />
+                <span>Wide Rectangle</span>
+              </button>
+              <button
+                onClick={() => handleSizeChange('tall')}
+                className={`flex items-center gap-2 p-2 rounded-lg border ${
+                  widget.size.width === WIDGET_SIZES.tall.width && widget.size.height === WIDGET_SIZES.tall.height
+                    ? 'border-emerald-500 bg-emerald-500/10'
+                    : 'border-gray-700 hover:border-gray-600'
+                }`}
+              >
+                <ArrowUpDown className="w-4 h-4" />
+                <span>Tall Rectangle</span>
+              </button>
+              <button
+                onClick={() => handleSizeChange('large')}
+                className={`flex items-center gap-2 p-2 rounded-lg border ${
+                  widget.size.width === WIDGET_SIZES.large.width && widget.size.height === WIDGET_SIZES.large.height
+                    ? 'border-emerald-500 bg-emerald-500/10'
+                    : 'border-gray-700 hover:border-gray-600'
+                }`}
+              >
+                <Maximize2 className="w-4 h-4" />
+                <span>Large Square</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Variable Configuration */}
+          <div>
+            <h3 className="text-sm font-medium mb-2">Widget Variables</h3>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
             >
-              <div className="space-y-2">
-                {config.variables
-                  .sort((a, b) => a.order - b.order)
-                  .map((variable) => (
-                    <div key={variable.id} onClick={() => handleToggleVariable(variable.id)}>
+              <SortableContext
+                items={config.variables}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-2">
+                  {config.variables.map(variable => (
+                    <div
+                      key={variable.id}
+                      onClick={() => handleToggleVariable(variable.id)}
+                    >
                       <SortableItem variable={variable} />
                     </div>
                   ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        </div>
-
-        <div className="p-4 border-t dark:border-gray-700 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Done
-          </button>
+                </div>
+              </SortableContext>
+            </DndContext>
+          </div>
         </div>
       </div>
     </div>

@@ -1,33 +1,34 @@
 'use client'
 
 import React from 'react'
-import { Plus, Wind, Thermometer, Activity, Timer } from 'lucide-react'
+import { Plus, Wind, Thermometer, Timer, Compass } from 'lucide-react'
 import { useDashboard } from '@/lib/dashboard-context'
+import { DEFAULT_WIDGET_SIZES, WIDGET_SIZES } from '@/lib/widget-sizes'
 
 const WIDGET_TYPES = [
   {
     id: 'wind',
     name: 'Wind',
     icon: Wind,
-    defaultSize: { width: 2, height: 2 }
+    defaultSize: WIDGET_SIZES[DEFAULT_WIDGET_SIZES.wind]
   },
   {
     id: 'environmental',
-    name: 'Environmental',
+    name: 'Weather',
     icon: Thermometer,
-    defaultSize: { width: 2, height: 2 }
+    defaultSize: WIDGET_SIZES[DEFAULT_WIDGET_SIZES.environmental]
   },
   {
-    id: 'shot-analysis',
-    name: 'Shot Analysis',
-    icon: Activity,
-    defaultSize: { width: 4, height: 3 }
+    id: 'compass',
+    name: 'Compass',
+    icon: Compass,
+    defaultSize: WIDGET_SIZES[DEFAULT_WIDGET_SIZES.compass]
   },
   {
     id: 'round-tracker',
     name: 'Round Tracker',
     icon: Timer,
-    defaultSize: { width: 4, height: 2 }
+    defaultSize: WIDGET_SIZES[DEFAULT_WIDGET_SIZES['round-tracker']]
   }
 ] as const
 

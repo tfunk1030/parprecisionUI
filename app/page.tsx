@@ -1,87 +1,118 @@
 'use client'
 
-import React from 'react'
 import { useEnvironmental } from '@/lib/hooks/use-environmental'
 import { useSettings } from '@/lib/settings-context'
+import { 
+  Thermometer, 
+  Droplets, 
+  Mountain, 
+  Gauge, 
+  ArrowUp,
+  Wind
+} from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { DashboardGrid } from '@/components/dashboard/dashboard-grid'
 
-function formatTemperature(temp: number): string {
-  return `${Math.round(temp)}°F`
-}
+export default function WeatherPage() {
+  const { conditions } = useEnvironmental()
+  const { formatTemperature, formatAltitude } = useSettings()
 
-function formatWindSpeed(speed: number): string {
-  return `${Math.round(speed)} mph`
-}
+  // Use client-side only rendering to avoid hydration mismatch
+  const [isClient, setIsClient] = useState(false)
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
-function formatWindDirection(degrees: number): string {
-  const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
-  const index = Math.round(((degrees + 22.5) % 360) / 45)
-  return directions[index]
-}
-
-export default function Home() {
-  const { conditions, adjustments, isLoading } = useEnvironmental()
-  const { settings } = useSettings()
-
-  if (isLoading || !conditions) {
+  if (!isClient) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white p-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-800 rounded w-1/4 mb-4"></div>
-          <div className="h-64 bg-gray-800 rounded mb-4"></div>
-          <div className="h-8 bg-gray-800 rounded w-1/2"></div>
-        </div>
+      <div className="p-4 max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold mb-6">Loading conditions...</h1>
       </div>
     )
   }
 
   return (
-    <main className="min-h-screen bg-gray-900 text-white p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Temperature Card */}
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h3 className="text-gray-400 mb-2">Temperature</h3>
-            <div>
-              <div className="text-4xl font-bold">
-                {formatTemperature(conditions.temperature)}
-              </div>
-              <div className="text-gray-400 text-sm">
-                Feels like {formatTemperature(conditions.temperature + 2)}
-              </div>
+    <div className="flex flex-col p-4 max-w-2xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6">Current Conditions</h1>
+
+      {/* Main Weather Card */}
+      <div className="bg-gray-800 rounded-xl p-6 mb-4">
+        <div className="flex items-center justify-between">
+          <div className="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center">
+            <Thermometer className="w-6 h-6 text-emerald-400" />
+          </div>
+          <div className="text-center flex-1">
+            <div className="text-4xl font-bold">
+              {formatTemperature(conditions.temperature)}
+            </div>
+            <div className="text-gray-400 text-sm">
+              Feels like {formatTemperature(conditions.temperature + 2)}
             </div>
           </div>
+          <div className="w-12"></div> {/* Spacer for centering */}
+        </div>
+      </div>
 
-          {/* Wind Card */}
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h3 className="text-gray-400 mb-2">Wind</h3>
-            <div>
-              <div className="text-4xl font-bold">
-                {formatWindSpeed(conditions.windSpeed)}
-              </div>
-              <div className="text-gray-400 text-sm">
-                From {formatWindDirection(conditions.windDirection)}
-              </div>
+      {/* Detailed Conditions */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Humidity */}
+        <div className="bg-gray-800 rounded-xl p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
+              <Droplets className="w-4 h-4 text-emerald-400" />
             </div>
+            <div className="text-sm text-gray-400">Humidity</div>
           </div>
-
-          {/* Altitude Card */}
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h3 className="text-gray-400 mb-2">Altitude</h3>
-            <div>
-              <div className="text-4xl font-bold">
-                {Math.round(conditions.altitude)} ft
-              </div>
-              <div className="text-gray-400 text-sm">
-                {adjustments && `${adjustments.distanceAdjustment > 0 ? '+' : ''}${Math.round(adjustments.distanceAdjustment)}% Distance`}
-              </div>
-            </div>
+          <div className="mt-2 ml-11 text-lg font-medium">
+            {conditions.humidity.toFixed(0)}%
           </div>
         </div>
 
-        <DashboardGrid />
+        {/* Altitude */}
+        <div className="bg-gray-800 rounded-xl p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
+              <Mountain className="w-4 h-4 text-emerald-400" />
+            </div>
+            <div className="text-sm text-gray-400">Altitude</div>
+          </div>
+          <div className="mt-2 ml-11 text-lg font-medium">
+            {formatAltitude(conditions.altitude)}
+          </div>
+        </div>
+
+        {/* Pressure */}
+        <div className="bg-gray-800 rounded-xl p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
+              <Gauge className="w-4 h-4 text-emerald-400" />
+            </div>
+            <div className="text-sm text-gray-400">Pressure</div>
+          </div>
+          <div className="mt-2 ml-11 text-lg font-medium">
+            {conditions.pressure.toFixed(0)} hPa
+          </div>
+        </div>
+
+        {/* Air Density */}
+        <div className="bg-gray-800 rounded-xl p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
+              <Wind className="w-4 h-4 text-emerald-400" />
+            </div>
+            <div className="text-sm text-gray-400">Air Density</div>
+          </div>
+          <div className="mt-2 ml-11">
+            <div className="text-lg font-medium">
+              {conditions.density.toFixed(3)} kg/m³
+            </div>
+            <div className="text-sm text-gray-400 mt-1">
+              {conditions.density > 1.225 
+                ? 'Denser air will reduce shot distance'
+                : 'Thinner air will increase shot distance'}
+            </div>
+          </div>
+        </div>
       </div>
-    </main>
+    </div>
   )
 }

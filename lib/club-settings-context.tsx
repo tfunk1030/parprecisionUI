@@ -24,18 +24,18 @@ interface ClubSettings {
 }
 
 const defaultClubs: ClubData[] = [
-  { name: 'Driver', normalYardage: 250, loft: 10.5 },
-  { name: '3W', normalYardage: 230, loft: 15 },
-  { name: '5W', normalYardage: 215, loft: 18 },
-  { name: '4i', normalYardage: 200, loft: 21 },
-  { name: '5i', normalYardage: 190, loft: 24 },
-  { name: '6i', normalYardage: 180, loft: 27 },
-  { name: '7i', normalYardage: 170, loft: 31 },
-  { name: '8i', normalYardage: 160, loft: 35 },
-  { name: '9i', normalYardage: 145, loft: 39 },
-  { name: 'PW', normalYardage: 135, loft: 43 },
-  { name: 'GW', normalYardage: 125, loft: 48 },
-  { name: 'SW', normalYardage: 115, loft: 54 },
+  { name: 'Driver', normalYardage: 295, loft: 10.5 },
+  { name: '3W', normalYardage: 260, loft: 15 },
+  { name: '5W', normalYardage: 240, loft: 18 },
+  { name: '4i', normalYardage: 220, loft: 21 },
+  { name: '5i', normalYardage: 205, loft: 24 },
+  { name: '6i', normalYardage: 190, loft: 27 },
+  { name: '7i', normalYardage: 178, loft: 31 },
+  { name: '8i', normalYardage: 165, loft: 35 },
+  { name: '9i', normalYardage: 152, loft: 39 },
+  { name: 'PW', normalYardage: 138, loft: 43 },
+  { name: 'GW', normalYardage: 126, loft: 48 },
+  { name: 'SW', normalYardage: 114, loft: 54 },
   { name: 'LW', normalYardage: 95, loft: 58 },
 ]
 

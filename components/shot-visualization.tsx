@@ -29,10 +29,11 @@ export default function ShotVisualization({
     // Convert wind direction to radians
     const windAngle = windDirection * Math.PI / 180
     
-    // Calculate wind effect (stronger effect with higher wind speed and longer distance)
-    // Wind effect increases non-linearly with distance due to longer exposure time
-    // Use cosine to allow for both positive and negative offsets based on wind direction
-    const windEffect = Math.cos(windAngle) * windSpeed * Math.pow(distance / 200, 1.5)
+    // Calculate wind effect based on sine of angle:
+    // 90° (sine=1) = max left curve
+    // 270° (sine=-1) = max right curve
+    // 0° and 180° (sine=0) = no curve
+    const windEffect = Math.sin(windAngle) * windSpeed * Math.pow(distance / 200, 1.5)
     
     // Scale the effect (adjust this multiplier to control the overall wind influence)
     return windEffect * 0.4 // Scaled to give reasonable offsets (-20 to +20 yards)
@@ -288,7 +289,7 @@ export default function ShotVisualization({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-gray-800 rounded-xl p-3 shadow-lg">
           <div className="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Distance</div>
@@ -304,39 +305,13 @@ export default function ShotVisualization({
         </div>
       </div>
 
-      <div className="space-y-6">
-        <div>
-          <div className="text-[10px] uppercase tracking-wider text-gray-400 mb-2">Distance</div>
-          <Slider
-            value={[params.distance]}
-            min={100}
-            max={300}
-            step={5}
-            onValueChange={([value]) => setParams(p => ({ ...p, distance: value }))}
-          />
-        </div>
-
-        <div>
-          <div className="text-[10px] uppercase tracking-wider text-gray-400 mb-2">Wind Speed</div>
-          <Slider
-            value={[params.windSpeed]}
-            min={0}
-            max={30}
-            step={1}
-            onValueChange={([value]) => setParams(p => ({ ...p, windSpeed: value }))}
-          />
-        </div>
-
-        <div>
-          <div className="text-[10px] uppercase tracking-wider text-gray-400 mb-2">Wind Direction</div>
-          <Slider
-            value={[params.windDirection]}
-            min={0}
-            max={360}
-            step={5}
-            onValueChange={([value]) => setParams(p => ({ ...p, windDirection: value }))}
-          />
-        </div>
+      <div className="aspect-[4/3] relative">
+        <canvas
+          ref={canvasRef}
+          width={800}
+          height={600}
+          className="w-full h-full bg-gray-900 rounded-lg"
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -354,13 +329,48 @@ export default function ShotVisualization({
         </div>
       </div>
 
-      <div className="aspect-[2/1] w-full bg-gray-800 rounded-xl overflow-hidden shadow-lg">
-        <canvas
-          ref={canvasRef}
-          className="w-full h-full"
-          width={800}
-          height={400}
-        />
+      <div className="space-y-6 bg-gray-900 p-4 rounded-lg">
+        <div className="space-y-2">
+          <label className="text-sm text-gray-400">Wind Direction (degrees)</label>
+          <div className="flex items-center gap-4">
+            <Slider
+              value={[params.windDirection]}
+              onValueChange={([value]) => setParams(p => ({ ...p, windDirection: value }))}
+              min={0}
+              max={360}
+              step={1}
+            />
+            <span className="text-sm text-gray-400 w-12">{params.windDirection}°</span>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm text-gray-400">Wind Speed (mph)</label>
+          <div className="flex items-center gap-4">
+            <Slider
+              value={[params.windSpeed]}
+              onValueChange={([value]) => setParams(p => ({ ...p, windSpeed: value }))}
+              min={0}
+              max={30}
+              step={1}
+            />
+            <span className="text-sm text-gray-400 w-12">{params.windSpeed}</span>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm text-gray-400">Shot Distance (yards)</label>
+          <div className="flex items-center gap-4">
+            <Slider
+              value={[params.distance]}
+              onValueChange={([value]) => setParams(p => ({ ...p, distance: value }))}
+              min={50}
+              max={300}
+              step={5}
+            />
+            <span className="text-sm text-gray-400 w-12">{params.distance}</span>
+          </div>
+        </div>
       </div>
     </div>
   )
