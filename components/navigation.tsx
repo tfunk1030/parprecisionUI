@@ -33,7 +33,6 @@ export default function Navigation() {
   const premiumRoutes = [
     { path: '/dashboard', label: 'Dashboard', icon: <BarChart2 className="w-5 h-5" /> },
     { path: '/shot-analysis', label: 'Shot Analysis', icon: <Target className="w-5 h-5" /> },
-    { path: '/flight-testing', label: 'Flight Test', icon: <Wind className="w-5 h-5" /> },
     { path: '/wind-profile', label: 'Wind Profile', icon: <Compass className="w-5 h-5" /> },
     { path: '/shot-visualization', label: 'Shot View', icon: <Mountain className="w-5 h-5" /> },
   ]
