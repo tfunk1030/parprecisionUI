@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowUpRight, Plus, Target } from 'lucide-react';
 
-interface Club {
+type Club = {
   name: string;
   distance: number;
   loft: number;
@@ -12,8 +12,16 @@ interface Club {
   spinRate: number;
 }
 
+const defaultClubs: Club[] = [
+  { name: 'Driver', distance: 260, loft: 10.5, ballSpeed: 167, launchAngle: 14.2, spinRate: 2800 },
+  { name: '3 Wood', distance: 235, loft: 15, ballSpeed: 158, launchAngle: 13.5, spinRate: 3400 },
+  { name: '5 Iron', distance: 185, loft: 27, ballSpeed: 138, launchAngle: 17.8, spinRate: 5200 },
+  { name: '7 Iron', distance: 165, loft: 34, ballSpeed: 127, launchAngle: 19.5, spinRate: 6400 },
+  { name: 'PW', distance: 135, loft: 46, ballSpeed: 115, launchAngle: 24, spinRate: 8200 }
+];
+
 export default function ClubSelection() {
-  const [clubs, setClubs] = useState<Club[]>([]);
+  const [clubs, setClubs] = useState<Club[]>(defaultClubs);
   const [selectedClub, setSelectedClub] = useState<Club | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [newClub, setNewClub] = useState<Club>({
@@ -24,19 +32,6 @@ export default function ClubSelection() {
     launchAngle: 0,
     spinRate: 0
   });
-
-  // Initialize with some default clubs
-  useEffect(() => {
-    const defaultClubs = [
-      { name: 'Driver', distance: 260, loft: 10.5, ballSpeed: 167, launchAngle: 14.2, spinRate: 2800 },
-      { name: '3 Wood', distance: 235, loft: 15, ballSpeed: 158, launchAngle: 13.5, spinRate: 3400 },
-      { name: '5 Iron', distance: 185, loft: 27, ballSpeed: 138, launchAngle: 17.8, spinRate: 5200 },
-      { name: '7 Iron', distance: 165, loft: 34, ballSpeed: 127, launchAngle: 19.5, spinRate: 6400 },
-      { name: 'PW', distance: 135, loft: 46, ballSpeed: 115, launchAngle: 24, spinRate: 8200 }
-    ] as const;
-    
-    setClubs(defaultClubs);
-  }, []);
 
   const handleClubSelect = (club: Club) => {
     setSelectedClub(club);
