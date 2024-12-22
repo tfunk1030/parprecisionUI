@@ -3,7 +3,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { Slider } from './ui/slider'
 import { FlightViz } from './flight-3d-viz'
-import { clubData } from '../lib/club-data'
+import { clubData } from '@/lib/club-data'
 
 interface FlightParams {
   speed: number
