@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 import { useWidgetSize } from '@/lib/use-widget-size'
 import { type WidgetSize } from '@/lib/widget-sizes'
 import { WidgetConfigModal } from '../widget-config-modal'
+import { useWidgetConfig } from '@/lib/widget-config-context'
 
 interface WindData {
   speed: number
@@ -138,7 +139,11 @@ const TallLayout = ({ data }: { data: WindData }) => (
 export function WindWidget() {
   const size = useWidgetSize()
   const [showConfig, setShowConfig] = useState(false)
+  const { getConfig } = useWidgetConfig()
   
+  const config = getConfig('wind')
+  if (!config) return null
+
   const LayoutComponent = {
     small: SmallLayout,
     wide: WideLayout,
@@ -164,6 +169,7 @@ export function WindWidget() {
 
       {showConfig && (
         <WidgetConfigModal
+          widgetId="wind"
           onClose={() => setShowConfig(false)}
         />
       )}
