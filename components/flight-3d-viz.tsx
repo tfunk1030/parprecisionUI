@@ -5,6 +5,8 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, PerspectiveCamera, Line, Environment } from '@react-three/drei'
 import * as THREE from 'three'
 import { useGesture } from '@use-gesture/react'
+import { useWebGL } from '@/lib/webgl-context'
+import { useTheme } from '@/lib/theme-context'
 
 interface FlightPoint {
   position: THREE.Vector3
@@ -12,12 +14,13 @@ interface FlightPoint {
 }
 
 function BallTrail({ points }: { points: FlightPoint[] }) {
-  const linePoints = points.map(p => p.position)
+  const { theme } = useTheme()
+  const linePoints = points.map(p => [p.position.x, p.position.y, p.position.z]).flat()
   
   return (
     <Line
       points={linePoints}
-      color="#10B981"
+      color={theme === 'dark' ? "#10B981" : "#059669"}
       lineWidth={2}
       dashed={false}
     />
@@ -34,11 +37,11 @@ function GolfBall({ position }: { position: THREE.Vector3 }) {
 }
 
 function Ground() {
+  const { theme } = useTheme()
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
       <planeGeometry args={[300, 300]} />
-      <meshStandardMaterial color="#1F2937" />
-      <gridHelper args={[300, 30, '#374151', '#374151']} />
+      <meshStandardMaterial color={theme === 'dark' ? "#1F2937" : "#E5E7EB"} />
     </mesh>
   )
 }
@@ -124,6 +127,15 @@ export default function Flight3DVisualization({
   spin: number
   launchAngle: number
 }) {
+  const { initRenderer } = useWebGL()
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    if (canvasRef.current) {
+      initRenderer(canvasRef.current)
+    }
+  }, [initRenderer])
+
   const bind = useGesture({
     onPinch: ({ offset: [scale] }) => {
       // Trigger haptic feedback on pinch
@@ -134,13 +146,19 @@ export default function Flight3DVisualization({
   })
 
   return (
-    <div {...bind()} className="w-full h-full">
-      <Canvas>
+    <div {...bind()} className="w-full h-full relative">
+      <Canvas
+        ref={canvasRef}
+        camera={{ position: [5, 5, 5], fov: 75 }}
+        shadows
+        dpr={[1, 2]}
+        performance={{ min: 0.5 }}
+      >
         <PerspectiveCamera makeDefault position={[0, 20, 20]} />
-        <Scene 
-          distance={distance} 
-          height={height} 
-          spin={spin} 
+        <Scene
+          distance={distance}
+          height={height}
+          spin={spin}
           launchAngle={launchAngle}
         />
         <Environment preset="sunset" />

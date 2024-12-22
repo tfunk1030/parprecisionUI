@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { usePremium } from '@/lib/premium-context'
 import { 
   Wind, 
   Target, 
@@ -13,23 +14,36 @@ import {
   Mountain,
   Compass,
   Menu,
-  X
+  X,
+  Settings,
+  Lock
 } from 'lucide-react'
 
 export default function Navigation() {
   const pathname = usePathname()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { isPremium, setShowUpgradeModal } = usePremium()
 
-  const routes = [
-    { path: '/', label: 'Dashboard', icon: <BarChart2 className="w-5 h-5" /> },
-    { path: '/shot-analysis', label: 'Shot Analysis', icon: <Target className="w-5 h-5" /> },
-    { path: '/weather', label: 'Weather', icon: <Cloud className="w-5 h-5" /> },
-    { path: '/club-selection', label: 'Club Selection', icon: <Activity className="w-5 h-5" /> },
-    { path: '/trajectory', label: 'Trajectory', icon: <LineChart className="w-5 h-5" /> },
-    { path: '/wind-profile', label: 'Wind Profile', icon: <Wind className="w-5 h-5" /> },
-    { path: '/shot-visualization', label: 'Shot View', icon: <Mountain className="w-5 h-5" /> },
-    { path: '/flight-testing', label: 'Flight Test', icon: <Compass className="w-5 h-5" /> }
+  const freeRoutes = [
+    { path: '/', label: 'Weather', icon: <Cloud className="w-5 h-5" /> },
+    { path: '/shot-calculator', label: 'Shot Calc', icon: <Target className="w-5 h-5" /> },
+    { path: '/settings', label: 'Settings', icon: <Settings className="w-5 h-5" /> },
   ]
+
+  const premiumRoutes = [
+    { path: '/dashboard', label: 'Dashboard', icon: <BarChart2 className="w-5 h-5" /> },
+    { path: '/shot-analysis', label: 'Shot Analysis', icon: <Target className="w-5 h-5" /> },
+    { path: '/flight-testing', label: 'Flight Test', icon: <Wind className="w-5 h-5" /> },
+    { path: '/wind-profile', label: 'Wind Profile', icon: <Compass className="w-5 h-5" /> },
+    { path: '/shot-visualization', label: 'Shot View', icon: <Mountain className="w-5 h-5" /> },
+  ]
+
+  const handlePremiumClick = (e: React.MouseEvent, path: string) => {
+    if (!isPremium) {
+      e.preventDefault()
+      setShowUpgradeModal(true)
+    }
+  }
 
   return (
     <>
@@ -57,22 +71,54 @@ export default function Navigation() {
           </button>
         </div>
         
-        <nav className="space-y-2">
-          {routes.map((route) => (
-            <Link
-              key={route.path}
-              href={route.path}
-              className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
-                pathname === route.path 
-                  ? 'bg-gray-800 text-emerald-400' 
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-              }`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {route.icon}
-              <span>{route.label}</span>
-            </Link>
-          ))}
+        <nav className="space-y-6">
+          {/* Free Features */}
+          <div>
+            <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">Free Features</div>
+            <div className="space-y-1">
+              {freeRoutes.map((route) => (
+                <Link
+                  key={route.path}
+                  href={route.path}
+                  className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
+                    pathname === route.path 
+                      ? 'bg-gray-800 text-emerald-400' 
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {route.icon}
+                  <span>{route.label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Premium Features */}
+          <div>
+            <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">Premium Features</div>
+            <div className="space-y-1">
+              {premiumRoutes.map((route) => (
+                <Link
+                  key={route.path}
+                  href={isPremium ? route.path : '#'}
+                  className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
+                    pathname === route.path 
+                      ? 'bg-gray-800 text-emerald-400' 
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  }`}
+                  onClick={(e) => {
+                    handlePremiumClick(e, route.path)
+                    setIsMenuOpen(false)
+                  }}
+                >
+                  {route.icon}
+                  <span>{route.label}</span>
+                  {!isPremium && <Lock className="w-4 h-4 ml-auto" />}
+                </Link>
+              ))}
+            </div>
+          </div>
         </nav>
       </div>
 
@@ -90,33 +136,33 @@ export default function Navigation() {
 
           {/* Quick Access Links */}
           <Link
-            href="/shot-visualization"
+            href="/"
             className={`flex flex-col items-center px-3 py-2 rounded-lg ${
-              pathname === '/shot-visualization' ? 'text-emerald-400' : 'text-gray-400'
+              pathname === '/' ? 'text-emerald-400' : 'text-gray-400'
             }`}
           >
-            <Mountain className="w-6 h-6" />
+            <Cloud className="w-6 h-6" />
+            <span className="text-xs mt-1">Weather</span>
+          </Link>
+
+          <Link
+            href="/shot-calculator"
+            className={`flex flex-col items-center px-3 py-2 rounded-lg ${
+              pathname === '/shot-calculator' ? 'text-emerald-400' : 'text-gray-400'
+            }`}
+          >
+            <Target className="w-6 h-6" />
             <span className="text-xs mt-1">Shot</span>
           </Link>
 
           <Link
-            href="/flight-testing"
+            href="/settings"
             className={`flex flex-col items-center px-3 py-2 rounded-lg ${
-              pathname === '/flight-testing' ? 'text-emerald-400' : 'text-gray-400'
+              pathname === '/settings' ? 'text-emerald-400' : 'text-gray-400'
             }`}
           >
-            <Compass className="w-6 h-6" />
-            <span className="text-xs mt-1">Testing</span>
-          </Link>
-
-          <Link
-            href="/shot-analysis"
-            className={`flex flex-col items-center px-3 py-2 rounded-lg ${
-              pathname === '/shot-analysis' ? 'text-emerald-400' : 'text-gray-400'
-            }`}
-          >
-            <Target className="w-6 h-6" />
-            <span className="text-xs mt-1">Analysis</span>
+            <Settings className="w-6 h-6" />
+            <span className="text-xs mt-1">Settings</span>
           </Link>
         </div>
       </nav>
