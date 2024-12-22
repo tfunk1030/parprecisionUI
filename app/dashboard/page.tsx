@@ -5,12 +5,17 @@ import { WidgetManager } from '@/components/dashboard/widget-manager'
 import { usePremium } from '@/lib/premium-context'
 import { DashboardProvider } from '@/lib/dashboard-context'
 import { WidgetConfigProvider, useWidgetConfig } from '@/lib/widget-config-context'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createPortal } from 'react-dom'
 
 function DashboardContent() {
   const { resetToDefaults } = useWidgetConfig()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleReset = () => {
     resetToDefaults()
@@ -32,7 +37,7 @@ function DashboardContent() {
         <DashboardGrid />
         <WidgetManager />
       </div>
-      {createPortal(<div id="widget-config-modal" />, document.body)}
+      {mounted && createPortal(<div id="widget-config-modal" />, document.body)}
     </DashboardProvider>
   )
 }
