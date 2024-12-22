@@ -32,7 +32,7 @@ const DEFAULT_LAYOUT: Layout = {
   widgets: [
     {
       id: 'wind-1',
-      type: 'wind-analysis',
+      type: 'wind',
       position: { x: 0, y: 0 },
       size: { width: 2, height: 2 }
     },
@@ -41,6 +41,18 @@ const DEFAULT_LAYOUT: Layout = {
       type: 'environmental',
       position: { x: 2, y: 0 },
       size: { width: 2, height: 2 }
+    },
+    {
+      id: 'shot-analysis-1',
+      type: 'shot-analysis',
+      position: { x: 0, y: 2 },
+      size: { width: 4, height: 3 }
+    },
+    {
+      id: 'round-1',
+      type: 'round-tracker',
+      position: { x: 0, y: 5 },
+      size: { width: 4, height: 2 }
     }
   ]
 }
