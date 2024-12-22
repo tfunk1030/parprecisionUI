@@ -19,7 +19,7 @@ interface FlightStats {
 
 const PADDING = 40
 
-export default function BallFlightVisualizer(): JSX.Element {
+const BallFlightVisualizer = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [selectedClub, setSelectedClub] = useState(clubData[0])
   const [view3D, setView3D] = useState(false)
@@ -79,18 +79,11 @@ export default function BallFlightVisualizer(): JSX.Element {
 
     for (let i = 0; i <= numPoints; i++) {
       const t = i / numPoints
-      
-      // X position is linear
       const x = distance * t
-      
-      // Y position uses a more gradual curve
       const flippedT = 1 - t
-      
-      // Even more gradual curve shape
       const baseCurve = (Math.sin(Math.PI * flippedT) * Math.pow(1 - flippedT, 0.5)) / 0.85
-      
-      // Adjust early trajectory based on launch angle
       let y = heightInYards * baseCurve
+      
       if (t < 0.3) {
         const launchEffect = (params.launchAngle - 10.4) / 30
         const earlyAdjust = (0.3 - t) / 0.3
@@ -132,7 +125,7 @@ export default function BallFlightVisualizer(): JSX.Element {
     ctx.fillStyle = '#666'
     ctx.textAlign = 'right'
     
-    // Y axis grid (height in yards)
+    // Y axis grid
     for (let h = 0; h <= gridMaxHeight; h += 5) {
       const y = canvas.height - PADDING - (h * yardToPixelY)
       ctx.beginPath()
@@ -145,7 +138,7 @@ export default function BallFlightVisualizer(): JSX.Element {
       ctx.fillText(`${h}y`, PADDING - 5, y + 4)
     }
     
-    // X axis grid (distance in yards)
+    // X axis grid
     for (let d = 0; d <= gridMaxDistance; d += 25) {
       const x = PADDING + (d * yardToPixelX)
       ctx.beginPath()
@@ -159,9 +152,8 @@ export default function BallFlightVisualizer(): JSX.Element {
       ctx.fillText(`${d}`, x, canvas.height - PADDING + 15)
     }
 
-    // Update flight stats with actual values in feet
     setFlightStats({
-      height: Math.round(heightInYards * 3),  // Convert back to feet for display
+      height: Math.round(heightInYards * 3),
       distance: Math.round(distance),
       time: Math.round((distance / params.speed) * 10) / 10
     })
@@ -169,7 +161,6 @@ export default function BallFlightVisualizer(): JSX.Element {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-900">
-      {/* Header with View Toggle */}
       <div className="px-4 py-2 bg-gray-800 border-b border-gray-700 flex justify-between items-center">
         <h2 className="text-sm font-semibold text-white">Flight Testing</h2>
         <button
@@ -196,9 +187,7 @@ export default function BallFlightVisualizer(): JSX.Element {
         </select>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col p-2 space-y-2">
-        {/* Visualization */}
         <div className="relative bg-gray-800 rounded-xl overflow-hidden w-full shadow-lg" style={{ height: '300px' }}>
           {view3D ? (
             <FlightViz
@@ -212,11 +201,10 @@ export default function BallFlightVisualizer(): JSX.Element {
               width={1200} 
               height={300}
               className="w-full h-full object-contain"
-            ></canvas>
+            />
           )}
         </div>
 
-        {/* Flight Stats */}
         <div className="grid grid-cols-3 gap-2">
           <div className="bg-gray-800 rounded-lg p-2 shadow-lg">
             <div className="text-[10px] uppercase tracking-wider text-gray-400">Height</div>
@@ -238,9 +226,7 @@ export default function BallFlightVisualizer(): JSX.Element {
           </div>
         </div>
 
-        {/* Controls */}
         <div className="bg-gray-800 rounded-lg p-3 space-y-3 shadow-lg">
-          {/* Launch Angle */}
           <div className="space-y-1">
             <div className="flex items-center justify-between">
               <div className="text-[10px] uppercase tracking-wider text-gray-400">
@@ -262,7 +248,6 @@ export default function BallFlightVisualizer(): JSX.Element {
             </div>
           </div>
 
-          {/* Ball Speed */}
           <div className="space-y-1">
             <div className="flex items-center justify-between">
               <div className="text-[10px] uppercase tracking-wider text-gray-400">
@@ -284,7 +269,6 @@ export default function BallFlightVisualizer(): JSX.Element {
             </div>
           </div>
 
-          {/* Spin Rate */}
           <div className="space-y-1">
             <div className="flex items-center justify-between">
               <div className="text-[10px] uppercase tracking-wider text-gray-400">
@@ -310,3 +294,5 @@ export default function BallFlightVisualizer(): JSX.Element {
     </div>
   )
 }
+
+export default BallFlightVisualizer
