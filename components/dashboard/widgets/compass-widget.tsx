@@ -12,6 +12,11 @@ function getCardinalDirection(degrees: number) {
   return directions[index]
 }
 
+// Extend DeviceOrientationEvent for iOS webkit properties
+interface DeviceOrientationEventWithWebkit extends DeviceOrientationEvent {
+  webkitCompassHeading?: number;
+}
+
 const SmallLayout = ({ bearing }: { bearing: number }) => (
   <div className="relative flex flex-col h-full">
     <div className="flex-1 p-4 flex flex-col items-center justify-center">
@@ -160,8 +165,8 @@ export function CompassWidget() {
   useEffect(() => {
     if (!hasPermission) return
 
-    const handleOrientation = (event: DeviceOrientationEvent) => {
-      if (event.webkitCompassHeading) {
+    const handleOrientation = (event: DeviceOrientationEventWithWebkit) => {
+      if (event.webkitCompassHeading !== undefined) {
         // iOS devices
         setBearing(event.webkitCompassHeading)
       } else if (event.alpha) {
