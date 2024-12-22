@@ -5,6 +5,7 @@ import { useEnvironmental } from '@/lib/hooks/use-environmental'
 import { useSettings } from '@/lib/settings-context'
 import { useWidgetConfig } from '@/lib/widget-config-context'
 import { useWidgetSize } from '@/lib/use-widget-size'
+import { useDashboard } from '@/lib/dashboard-context'
 import { WIDGET_SIZES } from '@/lib/widget-sizes'
 import { Settings2, Thermometer, Droplets, Mountain, Gauge } from 'lucide-react'
 import { WidgetConfigModal } from '@/components/dashboard/widget-config-modal'
@@ -164,10 +165,15 @@ const getVariableIcon = (id: string) => {
 
 export function EnvironmentalConditionsWidget() {
   const size = useWidgetSize()
-  const { getConfig } = useWidgetConfig()
   const [showConfig, setShowConfig] = useState(false)
+  const { getConfig } = useWidgetConfig()
+  const { activeLayout } = useDashboard()
+  
+  // Find the widget ID from the active layout
+  const envWidget = activeLayout?.widgets.find(w => w.type === 'environmental')
+  if (!envWidget) return null
 
-  const config = getConfig('environmental')
+  const config = getConfig(envWidget.id)
   if (!config) return null
 
   const enabledVariables = config.variables
@@ -199,7 +205,7 @@ export function EnvironmentalConditionsWidget() {
 
       {showConfig && (
         <WidgetConfigModal
-          widgetId="environmental"
+          widgetId={envWidget.id}
           onClose={() => setShowConfig(false)}
         />
       )}

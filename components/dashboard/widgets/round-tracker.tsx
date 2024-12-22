@@ -6,6 +6,7 @@ import { WIDGET_SIZES } from '@/lib/widget-sizes'
 import { Settings2 } from 'lucide-react'
 import { WidgetConfigModal } from '@/components/dashboard/widget-config-modal'
 import { useWidgetSize } from '@/lib/use-widget-size'
+import { useDashboard } from '@/lib/dashboard-context'
 
 interface RoundData {
   number: number
@@ -34,9 +35,14 @@ export function RoundTrackerWidget() {
   const size = useWidgetSize()
   const { currentRound } = useRoundData()
   const { getConfig } = useWidgetConfig()
+  const { activeLayout } = useDashboard()
   const [showConfig, setShowConfig] = useState(false)
 
-  const config = getConfig('round-tracker')
+  // Find the widget ID from the active layout
+  const roundWidget = activeLayout?.widgets.find(w => w.type === 'round-tracker')
+  if (!roundWidget) return null
+
+  const config = getConfig(roundWidget.id)
   if (!config) return null
 
   const enabledVariables = config.variables
@@ -80,7 +86,7 @@ export function RoundTrackerWidget() {
 
       {showConfig && (
         <WidgetConfigModal
-          widgetId="round-tracker"
+          widgetId={roundWidget.id}
           onClose={() => setShowConfig(false)}
         />
       )}

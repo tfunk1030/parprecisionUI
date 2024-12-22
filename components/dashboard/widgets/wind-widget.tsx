@@ -7,6 +7,7 @@ import { useWidgetSize } from '@/lib/use-widget-size'
 import { type WidgetSize } from '@/lib/widget-sizes'
 import { WidgetConfigModal } from '../widget-config-modal'
 import { useWidgetConfig } from '@/lib/widget-config-context'
+import { useDashboard } from '@/lib/dashboard-context'
 
 interface WindData {
   speed: number
@@ -140,8 +141,13 @@ export function WindWidget() {
   const size = useWidgetSize()
   const [showConfig, setShowConfig] = useState(false)
   const { getConfig } = useWidgetConfig()
+  const { activeLayout } = useDashboard()
   
-  const config = getConfig('wind')
+  // Find the widget ID from the active layout
+  const windWidget = activeLayout?.widgets.find(w => w.type === 'wind')
+  if (!windWidget) return null
+
+  const config = getConfig(windWidget.id)
   if (!config) return null
 
   const LayoutComponent = {
@@ -169,7 +175,7 @@ export function WindWidget() {
 
       {showConfig && (
         <WidgetConfigModal
-          widgetId="wind"
+          widgetId={windWidget.id}
           onClose={() => setShowConfig(false)}
         />
       )}
