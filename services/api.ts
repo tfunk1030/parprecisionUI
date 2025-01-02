@@ -14,6 +14,9 @@ export interface WeatherData {
   pressure: number
   windSpeed: number
   windDirection: number
+  altitude: number
+  latitude: number
+  longitude: number
 }
 
 // Mock data generator functions
@@ -27,6 +30,10 @@ const generateTrajectoryPoints = (distance: number, height: number = 30): [numbe
   }
   return points
 }
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_WEATHER_API_URL;
+const GEOCODING_API_KEY = process.env.GEOCODING_API_KEY;
+const GEOCODING_API_URL = 'https://api.opencagedata.com/geocode/v1/json'; // Example using OpenCage
 
 // API service with mock implementations
 export const api = {
@@ -46,16 +53,18 @@ export const api = {
   },
 
   // Weather Data
-  async getWeatherData(): Promise<WeatherData> {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    return {
-      temperature: 72,
-      humidity: 65,
-      pressure: 1013,
-      windSpeed: 10,
-      windDirection: 45
+  async getWeatherData(location: string): Promise<WeatherData> {
+    if (!API_BASE_URL) {
+      throw new Error('NEXT_PUBLIC_WEATHER_API_URL is not defined');
     }
+
+    const response = await fetch(`${API_BASE_URL}?location=${location || ''}`);
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+    const data = await response.json();
+
+    return data;
   },
 
   // Flight Path Calculation
@@ -96,5 +105,62 @@ export const api = {
       club: clubs[index],
       confidence: 0.85
     }
+  },
+
+  async geocodeLocation(location: string): Promise<{ latitude: number; longitude: number } | null> {
+    if (!GEOCODING_API_KEY) {
+      console.error('GEOCODING_API_KEY is not defined');
+      return null;
+    }
+
+    const url = `${GEOCODING_API_URL}?q=${encodeURIComponent(location)}&key=${GEOCODING_API_KEY}`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.error(`Geocoding API request failed with status ${response.status}`);
+        return null;
+      }
+
+      const data = await response.json();
+
+      if (data.results.length > 0) {
+        const { lat, lng } = data.results[0].geometry;
+        return { latitude: lat, longitude: lng };
+      } else {
+        console.error('No results found for the given location.');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error geocoding location:', error);
+      return null;
+    }
   }
+}
+
+// Export getUserLocation
+export async function getUserLocation(): Promise<string | { error: string }> {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      console.error('Geolocation is not supported by this browser.');
+      resolve({ error: 'Geolocation is not supported' });
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        resolve(`${latitude},${longitude}`);
+      },
+      (error) => {
+        console.error('Error getting user location:', error);
+        if (error.code === error.PERMISSION_DENIED) {
+          resolve({ error: 'Location access denied' });
+        } else {
+          resolve({ error: 'Error getting location' });
+        }
+      }
+    );
+  });
 }

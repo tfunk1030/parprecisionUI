@@ -12,35 +12,19 @@ interface ShotCalcData {
 }
 
 interface ShotCalcContextType {
-  shotCalcData: ShotCalcData
-  setShotCalcData: (data: Partial<ShotCalcData>) => void
+  shotCalcData: ShotCalcData | null;
+  setShotCalcData: (data: ShotCalcData | null) => void;
 }
 
 const ShotCalcContext = createContext<ShotCalcContextType>({
-  shotCalcData: {
-    targetYardage: 150,
-    adjustedDistance: 157, // Mock data: Playing 7 yards longer due to weather
-    elevation: 1000,
-    temperature: 85,
-    humidity: 60,
-    pressure: 29.5
-  },
-  setShotCalcData: () => {}
+  shotCalcData: null,
+  setShotCalcData: (data: ShotCalcData | null) => {
+    console.warn('ShotCalcContext provider is not initialized')
+  }
 })
 
 export function ShotCalcProvider({ children }: { children: React.ReactNode }) {
-  const [shotCalcData, setShotCalcDataState] = useState<ShotCalcData>({
-    targetYardage: 150,
-    adjustedDistance: 157, // Mock data: Playing 7 yards longer due to weather
-    elevation: 1000,
-    temperature: 85,
-    humidity: 60,
-    pressure: 29.5
-  })
-
-  const setShotCalcData = (data: Partial<ShotCalcData>) => {
-    setShotCalcDataState(prev => ({ ...prev, ...data }))
-  }
+  const [shotCalcData, setShotCalcData] = useState<ShotCalcData | null>(null)
 
   return (
     <ShotCalcContext.Provider value={{ shotCalcData, setShotCalcData }}>

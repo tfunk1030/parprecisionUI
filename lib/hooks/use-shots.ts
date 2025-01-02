@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 
 interface Shot {
   id: string
@@ -17,7 +17,7 @@ function generateTestShots(): Shot[] {
 
   clubs.forEach(club => {
     // Base statistics for each club
-    let baseStats = {
+    const baseStats = {
       Driver: { distance: 280, spread: 20 },
       '3-Wood': { distance: 250, spread: 15 },
       '5-Iron': { distance: 200, spread: 12 },
@@ -51,11 +51,45 @@ function generateTestShots(): Shot[] {
 
 export function useShots() {
   const [shots, setShots] = useState<Shot[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
-    // In a real app, this would fetch from an API
-    setShots(generateTestShots())
+    const fetchShots = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('/api/shots')
+        const data = await response.json()
+        setShots(data)
+      } catch (err) {
+        setError(err as Error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchShots()
   }, [])
 
-  return { shots }
+  const stats = useMemo(() => {
+    const baseStats = {
+      totalShots: shots.length,
+      averageDistance: 0,
+      longestShot: 0,
+      shortestShot: Infinity,
+      averageAccuracy: 0
+    }
+
+    if (shots.length === 0) return baseStats
+
+    return shots.reduce((acc, shot) => {
+      acc.averageDistance += shot.distance
+      acc.longestShot = Math.max(acc.longestShot, shot.distance)
+      acc.shortestShot = Math.min(acc.shortestShot, shot.distance)
+      acc.averageAccuracy += shot.accuracy || 0
+      return acc
+    }, baseStats)
+  }, [shots])
+
+  return { shots, loading, error, stats }
 }

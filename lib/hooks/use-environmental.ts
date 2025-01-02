@@ -31,13 +31,13 @@ export function useEnvironmental(shotDirection: number = 0) {
   useEffect(() => {
     if (conditions) {
       const windEffect = environmentalService.calculateWindEffect(shotDirection)
-      const altitudeEffect = environmentalService.calculateAltitudeEffect()
+      const altitudeEffect = environmentalService.calculateAltitudeEffect(conditions.altitude)
 
       setAdjustments({
         distanceAdjustment: altitudeEffect + (windEffect.headwind * -1.5),
         trajectoryShift: windEffect.crosswind * 2,
-        spinAdjustment: ((conditions.density / 1.225) - 1) * -50,
-        launchAngleAdjustment: windEffect.headwind * 0.1
+        spinAdjustment: 0,
+        launchAngleAdjustment: 0
       })
     }
   }, [conditions, shotDirection])

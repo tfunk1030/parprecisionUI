@@ -148,13 +148,6 @@ export function CompassWidget() {
   const [bearing, setBearing] = useState(0)
   const [hasPermission, setHasPermission] = useState<boolean | null>(null)
 
-  // Find the widget ID from the active layout
-  const compassWidget = activeLayout?.widgets.find((w: any) => w.type === 'compass')
-  if (!compassWidget) return null
-
-  const config = getConfig(compassWidget.id)
-  if (!config) return null
-
   useEffect(() => {
     // Request device orientation permission
     if (typeof DeviceOrientationEvent !== 'undefined' && 
@@ -189,6 +182,13 @@ export function CompassWidget() {
       window.removeEventListener('deviceorientation', handleOrientation)
     }
   }, [hasPermission])
+
+  // Find the widget ID from the active layout
+  const compassWidget = activeLayout?.widgets.find((w: any) => w.type === 'compass')
+  if (!compassWidget) return null
+
+  const config = getConfig(compassWidget.id)
+  if (!config) return null
 
   const LayoutComponent = {
     small: SmallLayout,

@@ -127,8 +127,44 @@
 /* Mobile vertical slider styles */
 .wind-direction-slider,
 .shot-direction-slider {
-  -webkit-appearance: slider-vertical;
+  writing-mode: vertical-lr;
+  direction: rtl;
   width: 8px;
   height: 200px;
   background: #374151;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Add custom track and thumb styles for better appearance */
+.wind-direction-slider::-webkit-slider-runnable-track,
+.shot-direction-slider::-webkit-slider-runnable-track {
+  background: #374151;
+  border-radius: 4px;
+}
+
+.wind-direction-slider::-webkit-slider-thumb,
+.shot-direction-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.wind-direction-slider::-moz-range-track,
+.shot-direction-slider::-moz-range-track {
+  background: #374151;
+  border-radius: 4px;
+}
+
+.wind-direction-slider::-moz-range-thumb,
+.shot-direction-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
+  border-radius: 50%;
+  cursor: pointer;
 }

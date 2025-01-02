@@ -1,175 +1,103 @@
 'use client'
 
-import React, { useState, useCallback, useEffect } from 'react'
-import { Responsive, WidthProvider } from 'react-grid-layout'
+import React, { useState, useCallback } from 'react'
 import { useDashboard } from '@/lib/dashboard-context'
-import { EnvironmentalConditionsWidget } from './widgets/environmental-conditions'
-import { WindWidget } from './widgets/wind-widget'
-import { RoundTrackerWidget } from './widgets/round-tracker'
-import { CompassWidget } from './widgets/compass-widget'
+import { useWidgetConfig } from '@/lib/widget-config-context'
 import { WidgetSizeOverlay } from './widget-size-overlay'
-import { X, GripVertical, Maximize } from 'lucide-react'
+import type { DragEndEvent } from '@dnd-kit/core'
 import { WIDGET_SIZES, type WidgetSize } from '@/lib/widget-sizes'
-import { WidgetProvider } from '@/lib/widget-context'
-import 'react-grid-layout/css/styles.css'
-import 'react-resizable/css/styles.css'
 
-const ResponsiveGridLayout = WidthProvider(Responsive)
-
-type WidgetType = 'environmental' | 'wind' | 'round-tracker' | 'compass';
-
-const widgetComponents: Record<WidgetType, React.FC> = {
-  'environmental': EnvironmentalConditionsWidget,
-  'wind': WindWidget,
-  'round-tracker': RoundTrackerWidget,
-  'compass': CompassWidget,
+interface WidgetWrapperProps {
+  widget: {
+    id: string;
+    type: string;
+    size?: { width: number; height: number };
+  };
+  onRemove: () => void;
+  onSizeChange: () => void;
 }
 
-const widgetTitles: Record<WidgetType, string> = {
-  'environmental': 'Weather',
-  'wind': 'Wind',
-  'round-tracker': 'Round Tracker',
-  'compass': 'Compass',
+function WidgetWrapper({ widget, onRemove, onSizeChange }: WidgetWrapperProps) {
+  return (
+    <div className="bg-gray-900 rounded-lg overflow-hidden">
+      <div className="p-4">
+        <div className="flex justify-between items-center">
+          <span className="text-gray-200">{widget.type}</span>
+          <div className="flex gap-2">
+            <button
+              onClick={onSizeChange}
+              className="p-1 text-gray-400 hover:text-gray-200"
+            >
+              Resize
+            </button>
+            <button
+              onClick={onRemove}
+              className="p-1 text-gray-400 hover:text-gray-200"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export function DashboardGrid() {
   const { activeLayout, updateWidget, removeWidget } = useDashboard()
+  const { getConfig } = useWidgetConfig()
   const [showSizeOverlay, setShowSizeOverlay] = useState<string | null>(null)
 
-  useEffect(() => {
-    // Listen for widget size update events
-    const handleWidgetSizeUpdate = (event: CustomEvent) => {
-      const { widgetId, size } = event.detail
-      const widget = activeLayout?.widgets.find((w) => w.id === widgetId)
-      if (widget && activeLayout) {
-        updateWidget(activeLayout.id, widgetId, {
-          position: widget.position,
-          size: WIDGET_SIZES[size as WidgetSize]
-        })
-      }
+  const handleDragEnd = useCallback((result: DragEndEvent) => {
+    if (!result.over || !activeLayout) return;
+
+    const { active, over } = result;
+    const widgets = Array.from(activeLayout.widgets);
+    const oldIndex = widgets.findIndex(item => item.id === active.id);
+    const newIndex = widgets.findIndex(item => item.id === over.id);
+    
+    if (oldIndex !== -1 && newIndex !== -1) {
+      const [removed] = widgets.splice(oldIndex, 1);
+      widgets.splice(newIndex, 0, removed);
+      updateWidget(activeLayout.id, removed.id, { position: { x: newIndex, y: 0 } });
     }
+  }, [activeLayout, updateWidget]);
 
-    window.addEventListener('update-widget-size', handleWidgetSizeUpdate as EventListener)
-    return () => {
-      window.removeEventListener('update-widget-size', handleWidgetSizeUpdate as EventListener)
-    }
-  }, [activeLayout, updateWidget])
+  const handleWidgetRemove = useCallback((widgetId: string) => {
+    if (!activeLayout) return;
+    removeWidget(activeLayout.id, widgetId);
+  }, [activeLayout, removeWidget]);
 
-  if (!activeLayout) return null
+  const handleSizeSelect = useCallback((widgetId: string, size: WidgetSize) => {
+    if (!activeLayout) return;
+    updateWidget(activeLayout.id, widgetId, { size: WIDGET_SIZES[size] });
+    setShowSizeOverlay(null);
+  }, [activeLayout, updateWidget]);
 
-  const handleLayoutChange = (layout: any[]) => {
-    layout.forEach((item) => {
-      const widget = activeLayout.widgets.find((w) => w.id === item.i)
-      if (widget) {
-        updateWidget(activeLayout.id, widget.id, {
-          position: { x: item.x, y: item.y },
-          size: { width: item.w, height: item.h }
-        })
-      }
-    })
-  }
+  if (!activeLayout) return null;
 
-  const handleSizeSelect = (widgetId: string, size: WidgetSize) => {
-    const widget = activeLayout.widgets.find((w) => w.id === widgetId)
-    if (widget) {
-      updateWidget(activeLayout.id, widgetId, {
-        position: widget.position,
-        size: WIDGET_SIZES[size]
-      })
-      setShowSizeOverlay(null)
-    }
-  }
-
-  const handleCloseOverlay = useCallback(() => {
-    setShowSizeOverlay(null)
-  }, [])
+  const overlayWidget = showSizeOverlay ? activeLayout.widgets.find(w => w.id === showSizeOverlay) : null;
 
   return (
-    <div className="p-4">
-      <ResponsiveGridLayout
-        className="layout"
-        layouts={{
-          xxs: activeLayout.widgets.map((widget) => ({
-            i: widget.id,
-            x: widget.position.x,
-            y: widget.position.y,
-            w: widget.size.width,
-            h: widget.size.height,
-            isDraggable: true,
-            isResizable: false,
-          }))
-        }}
-        breakpoints={{ xxs: 0 }}
-        cols={{ xxs: 12 }}
-        rowHeight={60}
-        margin={[16, 16]}
-        containerPadding={[16, 16]}
-        onLayoutChange={handleLayoutChange}
-        isDraggable={true}
-        isResizable={false}
-        draggableHandle=".drag-handle"
-        compactType="vertical"
-        preventCollision={false}
-        useCSSTransforms={true}
-      >
-        {activeLayout.widgets.map((widget) => {
-          const WidgetComponent = widgetComponents[widget.type as WidgetType]
-          const title = widgetTitles[widget.type as WidgetType]
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+      {activeLayout.widgets.map((widget) => (
+        <div key={widget.id} className="relative">
+          <WidgetWrapper
+            widget={widget}
+            onRemove={() => handleWidgetRemove(widget.id)}
+            onSizeChange={() => setShowSizeOverlay(widget.id)}
+          />
+        </div>
+      ))}
 
-          return (
-            <div
-              key={widget.id}
-              className="relative bg-gray-900 rounded-lg overflow-hidden"
-            >
-              <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-2 bg-gradient-to-b from-black/20 to-transparent z-10">
-                <div className="drag-handle cursor-move p-1">
-                  <GripVertical className="w-4 h-4 text-gray-400" />
-                </div>
-                <div className="text-sm font-medium text-gray-200">{title}</div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => setShowSizeOverlay(widget.id)}
-                    className="p-1 text-gray-400 hover:text-gray-200"
-                  >
-                    <Maximize className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => removeWidget(activeLayout.id, widget.id)}
-                    className="p-1 text-gray-400 hover:text-gray-200"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="pt-12">
-                <WidgetProvider 
-                  size={
-                    widget.size.width === 12 && widget.size.height === 6 
-                      ? 'large' 
-                      : widget.size.width === 12 
-                        ? 'wide' 
-                        : widget.size.height === 6 
-                          ? 'tall' 
-                          : 'small'
-                  }
-                >
-                  <WidgetComponent />
-                </WidgetProvider>
-              </div>
-
-              {showSizeOverlay === widget.id && (
-                <WidgetSizeOverlay
-                  widgetId={widget.id}
-                  currentSize={widget.size}
-                  onSizeSelect={(size) => handleSizeSelect(widget.id, size)}
-                  onClose={handleCloseOverlay}
-                />
-              )}
-            </div>
-          )
-        })}
-      </ResponsiveGridLayout>
+      {showSizeOverlay && overlayWidget && (
+        <WidgetSizeOverlay
+          widgetId={showSizeOverlay}
+          currentSize={overlayWidget.size || WIDGET_SIZES.small}
+          onSizeSelect={(size) => handleSizeSelect(showSizeOverlay, size)}
+          onClose={() => setShowSizeOverlay(null)}
+        />
+      )}
     </div>
-  )
+  );
 }

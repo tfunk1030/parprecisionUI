@@ -28,6 +28,7 @@ export default function ShotCalculatorPage() {
   // Calculate all adjustments in one memoized function
   const calculateAdjustments = useCallback(() => {
     if (!conditions) return null;
+    console.log("Conditions in calculateAdjustments:", conditions);
 
     const altitudeInMeters = settings.altitudeUnit === 'feet' 
       ? convertAltitude(conditions.altitude, 'meters')

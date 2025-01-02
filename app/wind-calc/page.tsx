@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useShotCalc } from '@/lib/shot-calc-context'
 import WindDirectionCompass from '@/components/wind-direction-compass'
+import { useEnvironmental } from '@/lib/hooks/use-environmental'
 
 interface WindCalcResult {
   distanceEffect: number  // positive = plays longer, negative = plays shorter
@@ -16,6 +17,7 @@ export default function WindCalcPage() {
   const { isPremium } = usePremium()
   const router = useRouter()
   const { shotCalcData } = useShotCalc()
+  const { conditions } = useEnvironmental()
   const [windDirection, setWindDirection] = useState(0)  // 0-360 degrees
   const [windSpeed, setWindSpeed] = useState(10)        // mph
   const [targetYardage, setTargetYardage] = useState(150)
@@ -24,10 +26,18 @@ export default function WindCalcPage() {
 
   // Update target yardage when shot calc data changes
   useEffect(() => {
-    if (shotCalcData.targetYardage) {
+    if (shotCalcData?.targetYardage) {
       setTargetYardage(shotCalcData.targetYardage)
     }
-  }, [shotCalcData.targetYardage])
+  }, [shotCalcData?.targetYardage])
+
+  // Update wind speed and direction when weather data changes
+  useEffect(() => {
+    if (conditions?.windSpeed && conditions?.windDirection) {
+      setWindSpeed(conditions.windSpeed)
+      setWindDirection(conditions.windDirection)
+    }
+  }, [conditions?.windSpeed, conditions?.windDirection])
 
   useEffect(() => {
     if (!isPremium) {
@@ -55,7 +65,7 @@ export default function WindCalcPage() {
     const lateralEffect = crosswindComponent * (targetYardage / 150)   // positive means aim right
 
     // Calculate total playing distance including shot calc adjustment
-    const totalDistance = (shotCalcData.adjustedDistance || targetYardage) + distanceEffect
+    const totalDistance = (shotCalcData?.adjustedDistance || targetYardage) + distanceEffect
 
     setResult({
       distanceEffect: Math.round(distanceEffect),
@@ -179,10 +189,10 @@ export default function WindCalcPage() {
           <div className="grid grid-cols-2 gap-4 text-lg">
             <div className="bg-gray-900/30 p-4 rounded-lg border border-gray-700/50">
               <div className="font-medium mb-2 text-gray-400">Weather Effect</div>
-              {shotCalcData.adjustedDistance && shotCalcData.targetYardage ? (
-                <div className={`font-semibold ${shotCalcData.adjustedDistance > shotCalcData.targetYardage ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {shotCalcData.adjustedDistance > shotCalcData.targetYardage ? '+' : '-'}
-                  {Math.abs(Math.round(shotCalcData.adjustedDistance - shotCalcData.targetYardage))} yards
+              {shotCalcData?.adjustedDistance && shotCalcData?.targetYardage ? (
+                <div className={`font-semibold ${shotCalcData?.adjustedDistance > shotCalcData?.targetYardage ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {shotCalcData?.adjustedDistance > shotCalcData?.targetYardage ? '+' : '-'}
+                  {Math.abs(Math.round(shotCalcData?.adjustedDistance - shotCalcData?.targetYardage))} yards
                 </div>
               ) : (
                 <div>No effect</div>
